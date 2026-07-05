@@ -75,7 +75,6 @@
 </head>
 <body>
 
-    <!-- BOCZNY PANEL -->
     <div class="sidebar">
         <div class="profile-area">
             <div class="avatar-frame">
@@ -85,7 +84,6 @@
             <div class="status-online">Elektronik Aktywny</div>
         </div>
 
-        <!-- NAWIGACJA -->
         <div class="menu-nav">
             <button class="menu-btn active" onclick="switchTab('dom')">🏠 Dom (Pulpit)</button>
             <button class="menu-btn" onclick="switchTab('omnie')">👤 O mnie</button>
@@ -95,7 +93,6 @@
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
         </div>
 
-        <!-- STOPKA Z METRYKAMI KRYPTO, RYNKU I KONTAKTEM -->
         <div class="sidebar-footer">
             <div class="contact-info">
                 <div>✉️ Mail: <span>sq4njx@o2.pl</span></div>
@@ -114,10 +111,8 @@
         </div>
     </div>
 
-    <!-- GŁÓWNA TREŚĆ -->
     <div class="main-content">
 
-        <!-- ZAKŁADKA: DOM -->
         <div id="dom" class="tab-content active">
             <h1>Pulpit Sterowniczy</h1>
             <div class="grid-2">
@@ -138,7 +133,6 @@
             </div>
         </div>
 
-        <!-- ZAKŁADKA: O MNIE -->
         <div id="omnie" class="tab-content">
             <h1>O mnie</h1>
             <div class="card">
@@ -148,7 +142,6 @@
             </div>
         </div>
 
-        <!-- ZAKŁADKA: PRACA -->
         <div id="praca" class="tab-content">
             <h1>Utrzymanie Ruchu & Serwis</h1>
             <div class="grid-2">
@@ -167,7 +160,6 @@
             </div>
         </div>
 
-        <!-- ZAKŁADKA: ELEKTRONIKA -->
         <div id="elektronika" class="tab-content">
             <h1>Warsztat Elektroniczny & Obliczenia</h1>
             <div class="grid-2">
@@ -207,12 +199,11 @@
             </div>
         </div>
 
-        <!-- ZAKŁADKA: AJAX MAGAZYNEK -->
         <div id="magazynek" class="tab-content">
             <h1>Magazynek Części (Baza GitHub)</h1>
             <div class="card">
                 <h3>Rzeczywisty Stan Podzespołów</h3>
-                <p style="font-size: 0.85rem; margin-bottom: 15px;">Dane synchronizowane automatycznie na bazie pliku <strong>baza.json</strong>. Wyszukaj element:</p>
+                <p style="font-size: 0.85rem; margin-bottom: 15px;">Dane synchronizowane automatycznie na bazie pliku <strong>baza.txt</strong>. Wyszukaj element:</p>
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <input type="text" id="searchInput" class="input-dark" placeholder="Filtruj części (np. tranzystor, kondensator, rezystor)..." oninput="filterParts()" style="margin-bottom:0;">
@@ -235,7 +226,6 @@
             </div>
         </div>
 
-        <!-- ZAKŁADKA: PO PRACY -->
         <div id="popracy" class="tab-content">
             <h1>Projekty 3D & Majsterkowanie</h1>
             <div class="card">
@@ -251,11 +241,11 @@
 
     </div>
 
-    <!-- LOGIKA STRONY -->
     <script>
+        // SKORYGOWANE: Adres do bazy pliku tekstowego w nowym repozytorium Warsztat
         const URL_BAZY = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/baza.txt";
 
-        // Konfiguracja Twojego bota Telegram
+        // Konfiguracja bota Telegram
         const TELEGRAM_TOKEN = "8600738375:AAErYRMS_99VBMXlqMiRkZrVhtno6PWcJow";
         const TELEGRAM_CHAT_ID = "7456814307"; 
 
@@ -332,7 +322,6 @@
 
         let tasks = JSON.parse(localStorage.getItem("ur_tasks")) || [];
         
-        // ZMODYFIKOWANE: Brak przycisku Usuń na liście strony
         function renderTasks() {
             const list = document.getElementById("taskList");
             list.innerHTML = "";
@@ -397,7 +386,6 @@
         }
         renderTasks();
 
-        // Skrypt nasłuchujący kliknięcia z Twojego telefonu (usuwanie przez link)
         function sprawdzZadanieUsuniecia() {
             const urlParams = new URLSearchParams(window.location.search);
             const idDoUsuniecia = urlParams.get('delete');
@@ -419,13 +407,16 @@
         }
         window.addEventListener("DOMContentLoaded", sprawdzZadanieUsuniecia);
 
+        // ZMODYFIKOWANE: Pobieranie bazy jako czysty tekst pliku .txt i parsowanie do formatu JSON
         async function wczytajBazeZGitHub() {
             const tbody = document.getElementById("partList");
             try {
                 const odpowiedz = await fetch(URL_BAZY); 
                 if (!odpowiedz.ok) throw new Error('Błąd pliku z danymi');
                 
-                parts = await odpowiedz.json();
+                const tekstMateriału = await odpowiedz.text();
+                parts = JSON.parse(tekstMateriału); // Przetwarzamy tekst na tablicę obiektów
+                
                 localStorage.setItem("magazynek_parts", JSON.stringify(parts));
                 renderParts(parts);
             } catch (err) {
@@ -434,7 +425,7 @@
                 if(parts.length > 0) {
                     renderParts(parts);
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd połączenia z repozytorium GitHub i brak kopii lokalnej.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd połączenia z repozytorium GitHub (baza.txt) i brak kopii lokalnej.</td></tr>`;
                 }
             }
         }
