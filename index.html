@@ -407,25 +407,49 @@
         }
         window.addEventListener("DOMContentLoaded", sprawdzZadanieUsuniecia);
 
-        // ZMODYFIKOWANE: Pobieranie bazy jako czysty tekst pliku .txt i parsowanie do formatu JSON
+       // Pobieranie bazy jako czysty tekst pliku .txt i przetwarzanie linii
         async function wczytajBazeZGitHub() {
             const tbody = document.getElementById("partList");
             try {
                 const odpowiedz = await fetch(URL_BAZY); 
                 if (!odpowiedz.ok) throw new Error('Błąd pliku z danymi');
                 
-                const tekstMateriału = await odpowiedz.text();
-                parts = JSON.parse(tekstMateriału); // Przetwarzamy tekst na tablicę obiektów
+                const surowyTekst = await odpowiedz.text();
+                
+                // Dzielimy tekst na pojedyncze linie
+                const linie = surowyTekst.split('\n');
+                parts = [];
+
+                // Przetwarzamy każdą linię od indeksu 1 (pomijamy nagłówek: Numer skrzynki, Towar, Ilosc)
+                for (let i = 1; i < linie.length; i++) {
+                    const linia = linie[i].trim();
+                    if (linia === "") continue; // pomiń puste linie
+
+                    // Dzielimy linię według tabulatorów
+                    const kolumny = linia.split('\t');
+                    
+                    if (kolumny.length >= 3) {
+                        const lokalizacja = kolumny[0].trim(); // np. "1" lub "Pudełko 1"
+                        const nazwaTowaru = kolumny[1].trim(); // np. "kondensator 470uf 50v"
+                        const iloscSztuk = kolumny[2].trim();  // np. "1"
+
+                        // Łączymy lokalizację z nazwą towaru, żebyś wiedział gdzie to leży
+                        parts.push({
+                            name: `[${lokalizacja}] ${nazwaTowaru}`,
+                            qty: iloscSztuk
+                        });
+                    }
+                }
                 
                 localStorage.setItem("magazynek_parts", JSON.stringify(parts));
                 renderParts(parts);
             } catch (err) {
-                console.error("Błąd ładowania bazy:", err);
+                console.error("Błąd ładowania bazy tekstowej:", err);
                 parts = JSON.parse(localStorage.getItem("magazynek_parts")) || [];
                 if(parts.length > 0) {
                     renderParts(parts);
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd połączenia z repozytorium GitHub (baza.txt) i brak kopii lokalnej.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd konwersji pliku baza.txt lub brak połączenia.</td></tr>`;
                 }
             }
         }
