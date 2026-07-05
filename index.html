@@ -478,17 +478,19 @@
             renderParts(przefiltrowane);
         }
 
-        async function fetchMarketData() {
+       async function fetchMarketData() {
             try {
-                const cryptoRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,monero,ethereum&vs_currencies=usd");
+                // Pobieranie cen krypto w EUR zamiast USD
+                const cryptoRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,monero,ethereum&vs_currencies=eur");
                 const cryptoData = await cryptoRes.json();
                 if(cryptoData.bitcoin && cryptoData.monero && cryptoData.ethereum) {
-                    document.getElementById("btc-price").innerText = `$${cryptoData.bitcoin.usd}`;
-                    document.getElementById("xmr-price").innerText = `$${cryptoData.monero.usd}`;
-                    document.getElementById("eth-price").innerText = `$${cryptoData.ethereum.usd}`;
+                    document.getElementById("btc-price").innerText = `€${cryptoData.bitcoin.eur}`;
+                    document.getElementById("xmr-price").innerText = `€${cryptoData.monero.eur}`;
+                    document.getElementById("eth-price").innerText = `€${cryptoData.ethereum.eur}`;
                 }
 
-                const forexRes = await fetch("https://open.er-api.com/v6/latest/USD");
+                // Pobieranie kursu EUR do PLN
+                const forexRes = await fetch("https://open.er-api.com/v6/latest/EUR");
                 const forexData = await forexRes.json();
                 if(forexData && forexData.rates && forexData.rates.PLN) {
                     document.getElementById("usd-price").innerText = `${forexData.rates.PLN.toFixed(2)} zł`;
