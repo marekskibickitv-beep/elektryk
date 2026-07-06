@@ -61,7 +61,7 @@
 
         /* Tabele i Listy */
         .table-dark { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        .table-dark th, .table-dark td { border: 1px solid #30363d; padding: 10px; text-align: left; }
+        .table-dark th, .table-dark td { border: 1px solid #30363d; padding: 10px; text-align: left; vertical-align: top; }
         .table-dark th { background: #0d1117; color: #58a6ff; }
         .task-list { list-style: none; margin: 15px 0 0 0; }
         .task-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #30363d; }
@@ -88,6 +88,7 @@
             <button class="menu-btn active" onclick="switchTab('dom')">🏠 Dom (Pulpit)</button>
             <button class="menu-btn" onclick="switchTab('omnie')">👤 O mnie</button>
             <button class="menu-btn" onclick="switchTab('praca')">🛠️ Praca (UR)</button>
+            <button class="menu-btn" onclick="switchTab('awarie')">🚨 Awarie maszyn</button>
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
@@ -105,6 +106,7 @@
                     <div class="crypto-box">XMR: <span id="xmr-price" style="color:#58a6ff;">...</span></div>
                     <div class="crypto-box">ETH: <span id="eth-price" style="color:#58a6ff;">...</span></div>
                     <div class="crypto-box">EUR: <span id="eur-price" style="color:#3fb950;">...</span></div>
+                    <div class="crypto-box" style="grid-column: span 2; width: 100%;">USD: <span id="usd-price" style="color:#3fb950;">...</span></div>
                 </div>
             </div>
             <p style="font-size: 0.75rem; margin-top: 15px; text-align: center;">© 2026 Panel Dowodzenia</p>
@@ -157,6 +159,34 @@
                     <div class="excuse-box" id="excuseDisplay">Generuj oficjalny komunikat dla kierownictwa...</div>
                     <button class="btn btn-action" onclick="losujWymowke()">Generuj Raport</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="awarie" class="tab-content">
+            <h1>Baza Wiedzy: Awarie i Rozwiązania</h1>
+            <div class="card">
+                <h3>Ewidencja Usterek Przemysłowych</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 15px;">Pełna bazy danych pobierana z pliku <strong>awarie.txt</strong> na GitHubie. Szybkie przeszukiwanie procedur:</p>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="searchFailureInput" class="input-dark" placeholder="Wyszukaj maszynę, sterownik, objaw lub kod błędu..." oninput="filterFailures()" style="margin-bottom:0;">
+                    <button class="btn btn-action" onclick="wczytajAwarieZGitHub()" style="white-space: nowrap;">🔄 Odśwież Bazę</button>
+                </div>
+
+                <table class="table-dark">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">Maszyna / Urządzenie</th>
+                            <th style="width: 300px;">Objawy / Usterka</th>
+                            <th>Rozwiązanie / Co sprawdzić</th>
+                        </tr>
+                    </thead>
+                    <tbody id="failureList">
+                        <tr>
+                            <td colspan="3" style="text-align:center; padding: 20px; color: #8b949e;">Oczekiwanie na pobranie bazy awarii...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -228,14 +258,33 @@
 
         <div id="popracy" class="tab-content">
             <h1>Projekty 3D & Majsterkowanie</h1>
-            <div class="card">
-                <h3>Ewidencja Projektowa (OpenSCAD / Druk 3D)</h3>
-                <p>Tworzenie funkcjonalnych elementów mechanicznych, obudów i komponentów zastępczych do warsztatu.</p>
-                <ul>
-                    <li>Projektowanie parametryczne części w OpenSCAD</li>
-                    <li>Optymalizacja wydruków technicznych pod kątem wytrzymałości mechanicznej</li>
-                    <li>Własne oprzyrządowanie stanowiska roboczego</li>
-                </ul>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Kalkulator Energii i Kosztów Druku 3D</h3>
+                    <p style="font-size: 0.85rem; margin-bottom: 10px;">Oszacuj pobór prądu i koszt energii wydruku (uwzględnia średni cykl pracy grzałek):</p>
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Średni pobór mocy drukarki podczas pracy (W):</label>
+                    <input type="number" id="printPower" class="input-dark" value="120" placeholder="np. 120">
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Czas trwania wydruku (godziny):</label>
+                    <input type="number" id="printHours" class="input-dark" value="5" placeholder="np. 5">
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Cena za 1 kWh energii (zł):</label>
+                    <input type="number" id="powerPrice" class="input-dark" value="1.00" step="0.01" placeholder="np. 1.00">
+                    
+                    <button class="btn btn-blue" onclick="obliczPrad3D()">Przelicz Koszt energii</button>
+                    <div id="printCostResult" style="margin-top: 15px; font-weight: bold; color: #58a6ff; line-height: 1.5;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Ewidencja Projektowa (OpenSCAD / Druk 3D)</h3>
+                    <p>Tworzenie funkcjonalnych elementów mechanicznych, obudów i komponentów zastępczych do warsztatu.</p>
+                    <ul>
+                        <li>Projektowanie parametryczne części w OpenSCAD</li>
+                        <li>Optymalizacja wydruków technicznych pod kątem wytrzymałości mechanicznej</li>
+                        <li>Własne oprzyrządowanie stanowiska roboczego</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -243,12 +292,13 @@
 
     <script>
         const URL_BAZY = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/baza.txt";
+        const URL_AWARII = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/awarie.txt";
 
-        // Konfiguracja bota Telegram
         const TELEGRAM_TOKEN = "8600738375:AAErYRMS_99VBMXlqMiRkZrVhtno6PWcJow";
         const TELEGRAM_CHAT_ID = "7456814307"; 
 
         let parts = [];
+        let failures = [];
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -317,6 +367,21 @@
             const maxPrad = (fazy === "1") ? dane.f1 : dane.f3;
 
             resDiv.innerHTML = `Dopuszczalny prąd długotrwały (Iz):<br><span style="color:#ff7b72; font-size:1.3rem;">${maxPrad.toFixed(1)} A</span>`;
+        }
+
+        function obliczPrad3D() {
+            const moc = parseFloat(document.getElementById("printPower").value);
+            const godziny = parseFloat(document.getElementById("printHours").value);
+            const cena = parseFloat(document.getElementById("powerPrice").value);
+            const resDiv = document.getElementById("printCostResult");
+
+            if (moc > 0 && godziny > 0 && cena >= 0) {
+                const kwh = (moc * godziny) / 1000;
+                const koszt = kwh * cena;
+                resDiv.innerHTML = `Zużycie: <span style="color:#3fb950;">${kwh.toFixed(3)} kWh</span><br>Koszt prądu: <span style="color:#ff7b72; font-size:1.2rem;">${koszt.toFixed(2)} zł</span>`;
+            } else {
+                resDiv.innerHTML = "Wprowadź prawidłowe liczby!";
+            }
         }
 
         let tasks = JSON.parse(localStorage.getItem("ur_tasks")) || [];
@@ -406,6 +471,72 @@
         }
         window.addEventListener("DOMContentLoaded", sprawdzZadanieUsuniecia);
 
+        async function wczytajAwarieZGitHub() {
+            const tbody = document.getElementById("failureList");
+            try {
+                const odpowiedz = await fetch(URL_AWARII);
+                if (!odpowiedz.ok) throw new Error('Błąd pobierania bazy awarii');
+                
+                const surowyTekst = await odpowiedz.text();
+                const linie = surowyTekst.split('\n');
+                failures = [];
+
+                for (let i = 1; i < linie.length; i++) {
+                    const linia = linie[i].trim();
+                    if (linia === "") continue;
+
+                    const kolumny = linia.split('\t');
+                    if (kolumny.length >= 3) {
+                        failures.push({
+                            machine: kolumny[0].trim(),
+                            symptoms: kolumny[1].trim(),
+                            solution: kolumny[2].trim()
+                        });
+                    }
+                }
+                localStorage.setItem("baza_awarii", JSON.stringify(failures));
+                renderFailures(failures);
+            } catch (err) {
+                console.error("Błąd ładowania bazy awarii:", err);
+                failures = JSON.parse(localStorage.getItem("baza_awarii")) || [];
+                if (failures.length > 0) {
+                    renderFailures(failures);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt lub brak pliku na GitHubie.</td></tr>`;
+                }
+            }
+        }
+
+        function renderFailures(elementyDoWyswietlenia) {
+            const tbody = document.getElementById("failureList");
+            tbody.innerHTML = "";
+
+            if (elementyDoWyswietlenia.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic; padding:15px;">Brak dopasowanych usterek w bazie.</td></tr>`;
+                return;
+            }
+
+            elementyDoWyswietlenia.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="font-weight:bold; color:#f0f6fc;">${item.machine}</td>
+                    <td style="color:#ff7b72;">${item.symptoms}</td>
+                    <td style="color:#3fb950; line-height:1.4;">${item.solution}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterFailures() {
+            const query = document.getElementById("searchFailureInput").value.toLowerCase().trim();
+            const przefiltrowane = failures.filter(item => 
+                item.machine.toLowerCase().includes(query) || 
+                item.symptoms.toLowerCase().includes(query) || 
+                item.solution.toLowerCase().includes(query)
+            );
+            renderFailures(przefiltrowane);
+        }
+
         async function wczytajBazeZGitHub() {
             const tbody = document.getElementById("partList");
             try {
@@ -413,7 +544,6 @@
                 if (!odpowiedz.ok) throw new Error('Błąd pliku z danymi');
                 
                 const surowyTekst = await odpowiedz.text();
-                
                 const linie = surowyTekst.split('\n');
                 parts = [];
 
@@ -422,7 +552,6 @@
                     if (linia === "") continue;
 
                     const kolumny = linia.split('\t');
-                    
                     if (kolumny.length >= 3) {
                         const lokalizacja = kolumny[0].trim();
                         const nazwaTowaru = kolumny[1].trim();
@@ -434,7 +563,6 @@
                         });
                     }
                 }
-                
                 localStorage.setItem("magazynek_parts", JSON.stringify(parts));
                 renderParts(parts);
             } catch (err) {
@@ -485,20 +613,30 @@
 
                 const forexRes = await fetch("https://open.er-api.com/v6/latest/EUR");
                 const forexData = await forexRes.json();
-                if(forexData && forexData.rates && forexData.rates.PLN) {
-                    document.getElementById("eur-price").innerText = `${forexData.rates.PLN.toFixed(2)} zł`;
+                if(forexData && forexData.rates) {
+                    if (forexData.rates.PLN) {
+                        document.getElementById("eur-price").innerText = `${forexData.rates.PLN.toFixed(2)} zł`;
+                    }
+                }
+
+                const usdRes = await fetch("https://open.er-api.com/v6/latest/USD");
+                const usdData = await usdRes.json();
+                if(usdData && usdData.rates && usdData.rates.PLN) {
+                    document.getElementById("usd-price").innerText = `${usdData.rates.PLN.toFixed(2)} zł`;
                 }
             } catch (err) {
                 document.getElementById("btc-price").innerText = "Błąd";
                 document.getElementById("xmr-price").innerText = "Błąd";
                 document.getElementById("eth-price").innerText = "Błąd";
                 document.getElementById("eur-price").innerText = "Błąd";
+                document.getElementById("usd-price").innerText = "Błąd";
             }
         }
 
         window.onload = function() {
             fetchMarketData();
             wczytajBazeZGitHub();
+            wczytajAwarieZGitHub();
             setInterval(fetchMarketData, 60000);
         };
     </script>
