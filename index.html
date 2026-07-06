@@ -87,7 +87,7 @@
         <div class="menu-nav">
             <button class="menu-btn active" onclick="switchTab('dom')">🏠 Dom (Pulpit)</button>
             <button class="menu-btn" onclick="switchTab('omnie')">👤 O mnie</button>
-            <button class="menu-btn" onclick="switchTab('praca')">🛠️ Praca (UR)</button>
+            <button class="menu-btn" onclick="switchTab('praca')">⚠️ PILNE ZGŁOSZENIE (UR)</button>
             <button class="menu-btn" onclick="switchTab('awarie')">🚨 Awarie maszyn</button>
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
@@ -147,11 +147,13 @@
         <div id="praca" class="tab-content">
             <h1>Utrzymanie Ruchu & Serwis</h1>
             <div class="grid-2">
-                <div class="card">
-                    <h3>Bieżący Terminarz Serwisowy Maszyn</h3>
-                    <p style="font-size: 0.85rem;">Wpisz maszynę/szafę i dodaj do kolejki napraw:</p>
-                    <input type="text" id="taskInput" class="input-dark" placeholder="np. Szafa sterownicza CNC - wymiana filtrow">
-                    <button class="btn btn-blue" onclick="addTask()">Dodaj Zgłoszenie</button>
+                <div class="card" style="border-color: #da3637;">
+                    <h3 style="color: #ff7b72;">🚨 KRYTYCZNE ZGŁOSZENIE AWARII</h3>
+                    <p style="color: #f0f6fc; font-weight: bold; margin-bottom: 5px;">Kontakt z Markiem — TYLKO PILNE SPRAWY!</p>
+                    <p style="font-size: 0.85rem; color: #ff7b72; margin-bottom: 15px;">⚠️ System przeznaczony wyłącznie do zgłaszania nagłych awarii i przestojów maszyn. Nie wpisuj tutaj błahych tematów.</p>
+                    
+                    <input type="text" id="taskInput" class="input-dark" placeholder="Wpisz maszynę, szafę lub kod błędu i zgłoś..." style="border-color: #da3637;">
+                    <button class="btn btn-danger" onclick="addTask()" style="width: 100%;">WYŚLIJ ALARM NA TELEGRAM</button>
                     <ul id="taskList" class="task-list"></ul>
                 </div>
                 <div class="card">
@@ -419,7 +421,7 @@
                 const urlStrony = window.location.href.split('?')[0];
                 const linkDoUsuniecia = `${urlStrony}?delete=${taskId}`;
 
-                const trescWiadomosci = `🛠️ *NOWE ZGŁOSZENIE UR*:\n\n${taskText}`;
+                const trescWiadomosci = `🚨 *KRYTYCZNA AWARIA (UR)*:\n\n${taskText}`;
                 const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
                 fetch(url, {
