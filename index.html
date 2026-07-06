@@ -92,7 +92,7 @@
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
-            <button class="menu-btn" onclick="switchTab('Szyfrowane')" style="border-top: 1px dashed #30363d; color: #ff7b72; margin-top: 5px;">💼 Panel Szyfrowanie 🔒</button>
+            <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 5px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
         </div>
 
         <div class="sidebar-footer">
@@ -291,17 +291,20 @@
             </div>
         </div>
 
-        <div id="panel szyfrowanie" class="tab-content">
-            <h1>Strefa Autoryzowana: Kierownictwo</h1>
-            <div class="card" style="border-color: #58a6ff;">
-                <h3>📊 Raporty Operacyjne UR</h3>
-                <p>Wgląd w poufne statystyki czasu pracy, rejestry awaryjności oraz plany modernizacji linii produkcyjnych.</p>
-                <ul style="margin-bottom: 15px;">
+        <!-- Zmiana klimatu na Sektor Zastrzeżony -->
+        <div id="kierownik" class="tab-content">
+            <h1>Sektor Zastrzeżony: Protokół Nadzoru</h1>
+            <div class="card" style="border-color: #da3637;">
+                <h3 style="color: #ff7b72;">🔒 STREFA WYSOKIEGO RYZYKA</h3>
+                <p style="color: #fff; font-weight: bold;">Autoryzacja pomyślna. Uzyskano wgląd w rejestry operacyjne kadry zarządczej.</p>
+                <p style="font-size: 0.85rem; color: #da3637; font-family: monospace; margin-bottom: 20px;">[POUFNE] Każdy dostęp do tego węzła jest logowany w rejestrze bezpieczeństwa.</p>
+                
+                <ul style="margin-bottom: 15px; list-style-type: '➔ '; margin-left: 15px;">
                     <li>Wydajność parku maszynowego (OEE): <span style="color:#3fb950; font-weight:bold;">94.2%</span></li>
                     <li>Średni czas usunięcia usterki (MTTR): <span style="color:#58a6ff;">18 min</span></li>
                     <li>Status budżetu na części zamienne: <span style="color:#238636;">Zabezpieczony</span></li>
+                    <li>Status krytyczny linii: <span style="color:#3fb950;">Norma zachowana</span></li>
                 </ul>
-                <p style="font-size: 0.85rem; font-style: italic;">Uwaga: Zmiany w harmonogramach wymagają bezpośredniej autoryzacji z Głównym Inżynierem (Marek).</p>
             </div>
         </div>
 
@@ -318,12 +321,11 @@
         let failures = [];
 
         function switchTab(tabId) {
-            // Blokada hasłem dla zakładki kierownika
             if (tabId === 'kierownik') {
-                const haslo = prompt("Wprowadź hasło dostępu dla Kierownictwa:");
+                const haslo = prompt("WPROWADŹ KOD AUTORYZACYJNY:");
                 if (haslo !== "Kierownik2026") {
-                    alert("❌ Brak autoryzacji! Odmowa dostępu.");
-                    return; // Przerywa otwieranie zakładki
+                    alert("❌ ODMIANA DOSTĘPU. Próba naruszenia strefy zastrzeżonej została odnotowana.");
+                    return;
                 }
             }
 
@@ -528,7 +530,7 @@
                 if (failures.length > 0) {
                     renderFailures(failures);
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt lub brak pliku na GitHubie.</td></tr>Status bazy awarii: błąd ładowania.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt lub brak pliku na GitHubie.</td></tr>`;
                 }
             }
         }
