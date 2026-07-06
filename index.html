@@ -72,6 +72,12 @@
         .task-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #30363d; }
         .task-done { text-decoration: line-through; color: #8b949e; opacity: 0.6; }
 
+        /* Styl dla prywatnych linków */
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 15px; }
+        .secret-link-card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #c9d1d9; transition: border-color 0.2s, background 0.2s; }
+        .secret-link-card:hover { border-color: #238636; background: #161b22; color: #58a6ff; }
+        .link-icon { font-size: 1.4rem; }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -82,8 +88,8 @@
 
     <div class="sidebar">
         <div class="profile-area">
-            <!-- Nagłówek z ukrytym linkiem w literze A -->
-            <h2>M<a href="#" class="secret-trigger" onclick="switchTab('kierownik'); return false;">a</a>rek</h2>
+            <!-- Nagłówek z ukrytym linkiem w literze A prowadzącym do "mojelinki" -->
+            <h2>M<a href="#" class="secret-trigger" onclick="switchTab('mojelinki'); return false;">a</a>rek</h2>
             
             <div class="avatar-frame">
                 <img src="foto.jpg" alt="Marek">
@@ -99,7 +105,6 @@
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
-            <!-- Przycisk boczny również wymaga teraz nowego hasła -->
             <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 5px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
         </div>
 
@@ -299,7 +304,47 @@
             </div>
         </div>
 
-        <!-- Sektor Zastrzeżony -->
+        <!-- Nowa Podstrona: Moje Linki -->
+        <div id="mojelinki" class="tab-content">
+            <h1>🗂️ Sektor Prywatny: Moje Linki</h1>
+            <div class="card" style="border-color: #238636;">
+                <h3 style="color: #3fb950;">🔗 Szybka Nawigacja Sieciowa</h3>
+                <p>Spersonalizowany zestaw odnośników do kluczowych systemów operacyjnych i baz zewnętrznych.</p>
+                
+                <div class="link-grid">
+                    <a href="https://github.com" target="_blank" class="secret-link-card">
+                        <span class="link-icon">🐙</span>
+                        <div>
+                            <div style="font-weight:bold;">GitHub</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Repozytoria kodu i baz</div>
+                        </div>
+                    </a>
+                    <a href="https://kraken.com" target="_blank" class="secret-link-card">
+                        <span class="link-icon">🪙</span>
+                        <div>
+                            <div style="font-weight:bold;">Kraken</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Giełda kryptowalut</div>
+                        </div>
+                    </a>
+                    <a href="https://t.me" target="_blank" class="secret-link-card">
+                        <span class="link-icon">✈️</span>
+                        <div>
+                            <div style="font-weight:bold;">Telegram Web</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Komunikator sieciowy</div>
+                        </div>
+                    </a>
+                    <a href="#" class="secret-link-card" onclick="alert('Miejsce na Twój własny link operacyjny!'); return false;">
+                        <span class="link-icon">⚙️</span>
+                        <div>
+                            <div style="font-weight:bold;">Dodaj własny...</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Edytuj kod HTML by wkleić URL</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sektor Zastrzeżony (stary kierownik) -->
         <div id="kierownik" class="tab-content">
             <h1>Sektor Zastrzeżony: Protokół Nadzoru</h1>
             <div class="card" style="border-color: #da3637;">
@@ -329,7 +374,8 @@
         let failures = [];
 
         function switchTab(tabId) {
-            if (tabId === 'kierownik') {
+            // Wspólne zabezpieczenie hasłem dla sekcji ukrytych
+            if (tabId === 'kierownik' || tabId === 'mojelinki') {
                 const haslo = prompt("WPROWADŹ KOD AUTORYZACYJNY:");
                 if (haslo !== "marek1901") {
                     alert("❌ ODMIANA DOSTĘPU. Próba naruszenia strefy zastrzeżonej została odnotowana.");
@@ -339,11 +385,14 @@
 
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
             
+            const targetTab = document.getElementById(tabId);
+            if(targetTab) targetTab.classList.add('active');
+            
+            // Podświetlenie przycisku w menu tylko jeśli fizycznie w nim istnieje
             const buttons = document.querySelectorAll('.menu-btn');
             buttons.forEach(btn => {
-                if(btn.getAttribute('onclick').includes(tabId)) {
+                if(btn.getAttribute('onclick').includes(`'${tabId}'`)) {
                     btn.classList.add('active');
                 }
             });
@@ -624,7 +673,7 @@
             elementyDoWyswietlenia.forEach(part => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${part.name}</td>
+                    <td element-name>${part.name}</td>
                     <td style="text-align:center; font-weight:bold; color:#58a6ff;">${part.qty} szt.</td>
                 `;
                 tbody.appendChild(tr);
