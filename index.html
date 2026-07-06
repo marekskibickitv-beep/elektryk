@@ -11,7 +11,12 @@
         /* Boczny Panel Nawigacyjny (Sidebar) */
         .sidebar { width: 280px; background: #161b22; border-right: 1px solid #30363d; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .profile-area { text-align: center; margin-bottom: 30px; width: 100%; }
-        .avatar-frame { width: 150px; height: 180px; border: 3px solid #238636; border-radius: 8px; overflow: hidden; margin: 0 auto 15px; box-shadow: 0 0 15px rgba(35,134,54,0.3); }
+        
+        /* Styl dla ukrytego kliku w literze A */
+        .secret-trigger { cursor: default; color: inherit; text-decoration: none; }
+        .secret-trigger:hover { color: inherit; }
+
+        .avatar-frame { width: 150px; height: 180px; border: 3px solid #238636; border-radius: 8px; overflow: hidden; margin: 15px auto 15px; box-shadow: 0 0 15px rgba(35,134,54,0.3); }
         .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
         .profile-area h2 { font-size: 1.2rem; color: #f0f6fc; margin-bottom: 5px; }
         .status-online { color: #3fb950; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
@@ -77,10 +82,12 @@
 
     <div class="sidebar">
         <div class="profile-area">
+            <!-- Nagłówek z ukrytym linkiem w literze A -->
+            <h2>M<a href="#" class="secret-trigger" onclick="switchTab('kierownik'); return false;">a</a>rek</h2>
+            
             <div class="avatar-frame">
                 <img src="foto.jpg" alt="Marek">
             </div>
-            <h2>Marek</h2>
             <div class="status-online">Elektronik Aktywny</div>
         </div>
 
@@ -92,6 +99,7 @@
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
+            <!-- Przycisk boczny również wymaga teraz nowego hasła -->
             <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 5px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
         </div>
 
@@ -291,7 +299,7 @@
             </div>
         </div>
 
-        <!-- Zmiana klimatu na Sektor Zastrzeżony -->
+        <!-- Sektor Zastrzeżony -->
         <div id="kierownik" class="tab-content">
             <h1>Sektor Zastrzeżony: Protokół Nadzoru</h1>
             <div class="card" style="border-color: #da3637;">
@@ -323,7 +331,7 @@
         function switchTab(tabId) {
             if (tabId === 'kierownik') {
                 const haslo = prompt("WPROWADŹ KOD AUTORYZACYJNY:");
-                if (haslo !== "Kierownik2026") {
+                if (haslo !== "marek1901") {
                     alert("❌ ODMIANA DOSTĘPU. Próba naruszenia strefy zastrzeżonej została odnotowana.");
                     return;
                 }
