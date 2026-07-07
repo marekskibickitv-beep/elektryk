@@ -427,61 +427,68 @@
         }
 
         // PEŁNE PRZESZUKIWANIE I CZYTANIE BAZ W LOCIE
-        async function wyslijDoAI() {
+       async function wyslijDoAI() {
             const input = document.getElementById("ai-input");
             const chat = document.getElementById("chat-history");
             const zapytanie = input.value.trim().toLowerCase();
             if(!zapytanie) return;
 
+            // Wyświetlenie Twojego pytania w czacie
             chat.innerHTML += `<p><strong>Ty:</strong> ${input.value}</p>`;
             input.value = "";
 
             try {
-                // Pobieranie świeżych baz danych z GitHub
+                // Pobieranie plików z GitHuba
                 const [surowaBaza, suroweAwarie] = await Promise.all([
                     fetch(URL_BAZY).then(r => r.text()),
                     fetch(URL_AWARII).then(r => r.text())
                 ]);
 
-                let odpowiedzi = [];
+                let wynikiMagazyn = [];
+                let wynikiAwarie = [];
 
-                // Przeszukiwanie bazy magazynowej (baza.txt)
+                // Przeszukanie baza.txt
                 const linieBazy = surowaBaza.split('\n');
-                let znalezioneCzesci = [];
                 for(let i = 1; i < linieBazy.length; i++) {
                     if(linieBazy[i].toLowerCase().includes(zapytanie)) {
                         const kol = linieBazy[i].split('\t');
-                        if(kol.length >= 3) znalezioneCzesci.push(`📦 [${kol[0].trim()}] ${kol[1].trim()} - Stan: ${kol[2].trim()} szt.`);
+                        if(kol.length >= 3) {
+                            wynikiMagazyn.push(`📦 [${kol[0].trim()}] ${kol[1].trim()} - Stan: ${kol[2].trim()} szt.`);
+                        }
                     }
                 }
 
-                // Przeszukiwanie bazy awarii (awarie.txt)
+                // Przeszukanie awarie.txt
                 const linieAwarii = suroweAwarie.split('\n');
-                let znalezioneAwarie = [];
                 for(let i = 1; i < linieAwarii.length; i++) {
                     if(linieAwarii[i].toLowerCase().includes(zapytanie)) {
                         const kol = linieAwarii[i].split('\t');
-                        if(kol.length >= 3) znalezioneAwarie.push(`🚨 <strong>${kol[0].trim()}</strong>:<br>• Objawy: ${kol[1].trim()}<br>• Rozwiązanie: ${kol[2].trim()}`);
+                        if(kol.length >= 3) {
+                            wynikiAwarie.push(`🚨 <strong>${kol[0].trim()}</strong>:<br>• Objawy: ${kol[1].trim()}<br>• Rozwiązanie: ${kol[2].trim()}`);
+                        }
                     }
                 }
 
-                // Budowanie odpowiedzi asystenta
-                if(znalezioneCzesci.length > 0) {
-                    odpowiedzi.push(`<span style="color:#58a6ff; font-weight:bold;">Znaleziono w magazynie:</span><br>` + znalezioneCzesci.join('<br>'));
+                // Składanie odpowiedzi AI
+                let finalnyTekst = "";
+                if(wynikiMagazyn.length > 0) {
+                    finalnyTekst += `<p style="color:#58a6ff; font-weight:bold; margin-bottom:5px;">Znaleziono w magazynie:</p>` + wynikiMagazyn.join('<br>') + `<br><br>`;
                 }
-                if(znalezioneAwarie.length > 0) {
-                    odpowiedzi.push(`<span style="color:#ff7b72; font-weight:bold;">Znalezione procedury awaryjne:</span><br>` + znalezioneAwarie.join('<br><br>'));
+                if(wynikiAwarie.length > 0) {
+                    finalnyTekst += `<p style="color:#ff7b72; font-weight:bold; margin-bottom:5px;">Znalezione awarie i rozwiązania:</p>` + wynikiAwarie.join('<br><br>');
                 }
 
-                if(odpowiedzi.length === 0) {
-                    chat.innerHTML += `<p style="color: #8b949e;"><strong>AI:</strong> Nie znalazłem frazy "${zapytanie}" w plikach baza.txt oraz awarie.txt.</p>`;
+                if(finalnyTekst === "") {
+                    chat.innerHTML += `<p style="color: #8b949e;"><strong>AI:</strong> Nie znalazłem frazy "${zapytanie}" w bazach danych.</p>`;
                 } else {
-                    chat.innerHTML += `<div style="background: #161b22; padding: 10px; border-radius: 6px; margin-top: 5px; border: 1px solid #30363d;"><p style="color: #3fb950; margin-bottom: 5px;"><strong>AI Asystent:</strong></p>${odpowiedzi.join('<br><hr style="border-color:#30363d; margin:10px 0;"><br>')}</div>`;
+                    chat.innerHTML += `<div style="background: #161b22; padding: 12px; border-radius: 6px; margin: 8px 0; border: 1px solid #30363d;"><p style="color: #3fb950; font-weight:bold; margin-bottom:8px;">AI Asystent:</p>${finalnyTekst}</div>`;
                 }
 
             } catch(e) { 
-                chat.innerHTML += `<p style="color: #ff7b72;"><strong>AI:</strong> Błąd krytyczny odczytu baz GitHub.</p>`; 
+                chat.innerHTML += `<p style="color: #ff7b72;"><strong>AI:</strong> Błąd odczytu plików z GitHuba.</p>`; 
             }
+            
+            // Autoprzewijanie czatu na dół
             chat.scrollTop = chat.scrollHeight;
         }
 
