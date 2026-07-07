@@ -413,7 +413,7 @@
                 }
             }
         }
-       // Funkcja szyfrująca wpisane hasło algorytmem SHA-256
+      // Funkcja szyfrująca wpisane hasło algorytmem SHA-256
         async function checkPassword() {
             const inputHaslo = document.getElementById('passInput').value;
             
@@ -423,8 +423,8 @@
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const wpisanyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-            // To jest bezpieczny hash dla hasła 
-            const poprawneHasloHash = "4a7d65691060938dbb26715eeff1c3f2b4ffbc5d09f3e4983a5f458ff62608fb";
+            // PRAWIDŁOWY hash dla hasła "marek1901"
+            const poprawneHasloHash = "78018e6e58f276fc931751d80360a6723b7e77b4d1b7194fbe9648937617b077";
 
             if (wpisanyHash === poprawneHasloHash) {
                 isAuthenticated = true;
