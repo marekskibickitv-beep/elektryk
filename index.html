@@ -12,7 +12,6 @@
         .sidebar { width: 280px; background: #161b22; border-right: 1px solid #30363d; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .profile-area { text-align: center; margin-bottom: 30px; width: 100%; }
         
-        /* Styl dla ukrytego kliku w literze A */
         .secret-trigger { cursor: default; color: inherit; text-decoration: none; }
         .secret-trigger:hover { color: inherit; }
 
@@ -50,7 +49,6 @@
         p { line-height: 1.6; color: #8b949e; margin-bottom: 15px; }
         ul { margin-left: 20px; color: #8b949e; line-height: 1.8; }
         
-        /* Licznik i Inputy */
         .counter-val { font-size: 3rem; font-weight: bold; color: #ff7b72; font-family: monospace; margin: 10px 0; }
         .excuse-box { min-height: 60px; background: #0d1117; border: 1px dashed #8b949e; border-radius: 6px; padding: 15px; display: flex; align-items: center; justify-content: center; font-style: italic; color: #58a6ff; margin-bottom: 15px; text-align: center; }
         
@@ -72,7 +70,12 @@
         .task-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #30363d; }
         .task-done { text-decoration: line-through; color: #8b949e; opacity: 0.6; }
 
-        /* Styl dla prywatnych linków */
+        /* Styl dla czatu AI */
+        .chat-box { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; height: 300px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; font-family: monospace; font-size: 0.9rem; }
+        .chat-msg { padding: 8px 12px; border-radius: 6px; max-width: 80%; line-height: 1.4; }
+        .chat-msg.user { background: #1f6feb; color: white; align-self: flex-end; }
+        .chat-msg.ai { background: #21262d; color: #58a6ff; align-self: flex-start; border: 1px solid #30363d; }
+
         .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 15px; }
         .secret-link-card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #c9d1d9; transition: border-color 0.2s, background 0.2s; }
         .secret-link-card:hover { border-color: #238636; background: #161b22; color: #58a6ff; }
@@ -88,7 +91,6 @@
 
     <div class="sidebar">
         <div class="profile-area">
-            <!-- Nagłówek z ukrytym linkiem w literze A prowadzącym do "mojelinki" -->
             <h2>M<a href="#" class="secret-trigger" onclick="switchTab('mojelinki'); return false;">a</a>rek</h2>
             
             <div class="avatar-frame">
@@ -105,7 +107,8 @@
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
-            <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 5px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
+            <button class="menu-btn" onclick="switchTab('asystentai')" style="border-top: 1px dashed #238636; color: #3fb950; margin-top: 5px; font-weight: bold;">🤖 Asystent AI (Szukaj)</button>
+            <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 2px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
         </div>
 
         <div class="sidebar-footer">
@@ -304,7 +307,23 @@
             </div>
         </div>
 
-        <!-- Nowa Podstrona: Moje Linki -->
+        <div id="asystentai" class="tab-content">
+            <h1>🤖 Asystent AI & Baza Wyszukiwania</h1>
+            <div class="card" style="border-color: #238636;">
+                <h3 style="color: #3fb950;">Inteligentny Doradca Warsztatowy</h3>
+                <p>Zadaj pytanie, wpisz objaw awarii lub szukany element w magazynie. AI przeszuka Twoje lokalne bazy danych.</p>
+                
+                <div class="chat-box" id="chatContainer">
+                    <div class="chat-msg ai">Cześć Marek! W czym pomóc dzisiaj w warsztacie lub w bazie awarii? Wpisz czego szukasz.</div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="chatInput" class="input-dark" placeholder="Zapytaj AI (np. Gdzie jest przekaźnik? / Jak naprawić błąd...?)" onkeydown="if(event.key==='Enter') sendAiMessage()" style="margin-bottom:0;">
+                    <button class="btn btn-action" onclick="sendAiMessage()" style="white-space: nowrap;">Wyślij</button>
+                </div>
+            </div>
+        </div>
+
         <div id="mojelinki" class="tab-content">
             <h1>🗂️ Sektor Prywatny: Moje Linki</h1>
             <div class="card" style="border-color: #238636;">
@@ -326,25 +345,10 @@
                             <div style="font-size:0.75rem; color:#8b949e;">Giełda kryptowalut</div>
                         </div>
                     </a>
-                    <a href="https://t.me" target="_blank" class="secret-link-card">
-                        <span class="link-icon">✈️</span>
-                        <div>
-                            <div style="font-weight:bold;">Telegram Web</div>
-                            <div style="font-size:0.75rem; color:#8b949e;">Komunikator sieciowy</div>
-                        </div>
-                    </a>
-                    <a href="#" class="secret-link-card" onclick="alert('Miejsce na Twój własny link operacyjny!'); return false;">
-                        <span class="link-icon">⚙️</span>
-                        <div>
-                            <div style="font-weight:bold;">Dodaj własny...</div>
-                            <div style="font-size:0.75rem; color:#8b949e;">Edytuj kod HTML by wkleić URL</div>
-                        </div>
-                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Sektor Zastrzeżony (stary kierownik) -->
         <div id="kierownik" class="tab-content">
             <h1>Sektor Zastrzeżony: Protokół Nadzoru</h1>
             <div class="card" style="border-color: #da3637;">
@@ -374,11 +378,17 @@
         let failures = [];
 
         function switchTab(tabId) {
-            // Wspólne zabezpieczenie hasłem dla sekcji ukrytych
-            if (tabId === 'kierownik' || tabId === 'mojelinki') {
+            if (tabId === 'kierownik') {
+                const haslo = prompt("WPROWADŹ KOD AUTORYZACYJNY:");
+                if (haslo !== "kierownik2026") {
+                    alert("❌ ODMÓWIENIE DOSTĘPU.");
+                    return;
+                }
+            }
+            if (tabId === 'mojelinki' || tabId === 'asystentai') {
                 const haslo = prompt("WPROWADŹ KOD AUTORYZACYJNY:");
                 if (haslo !== "marek1901") {
-                    alert("❌ ODMIANA DOSTĘPU. Próba naruszenia strefy zastrzeżonej została odnotowana.");
+                    alert("❌ ODMÓWIENIE DOSTĘPU.");
                     return;
                 }
             }
@@ -389,13 +399,46 @@
             const targetTab = document.getElementById(tabId);
             if(targetTab) targetTab.classList.add('active');
             
-            // Podświetlenie przycisku w menu tylko jeśli fizycznie w nim istnieje
             const buttons = document.querySelectorAll('.menu-btn');
             buttons.forEach(btn => {
                 if(btn.getAttribute('onclick').includes(`'${tabId}'`)) {
                     btn.classList.add('active');
                 }
             });
+        }
+
+        // Prosta logika przeszukiwania baz przez lokalnego "AI / Asystenta"
+        function sendAiMessage() {
+            const input = document.getElementById("chatInput");
+            const text = input.value.trim();
+            if(!text) return;
+
+            const container = document.getElementById("chatContainer");
+            
+            // Dodaj wiadomość użytkownika
+            container.innerHTML += `<div class="chat-msg user">${text}</div>`;
+            input.value = "";
+
+            // Przeszukaj lokalne tablice w poszukiwaniu pasujących słów
+            let odpowiedźAI = "Przeszyukałem bazę, ale nie znalazłem dokładnego dopasowania. Spróbuj wpisać inną frazę lub sprawdzić zakładki awarii/magazynu.";
+            
+            const query = text.toLowerCase();
+            const foundPart = parts.find(p => p.name.toLowerCase().includes(query));
+            const foundFailure = failures.find(f => f.machine.toLowerCase().includes(query) || f.symptoms.toLowerCase().includes(query));
+
+            if(foundPart) {
+                odpowiedźAI = `Znaleziono w magazynie: ${foundPart.name} – Ilość: ${foundPart.qty} szt.`;
+            } else if(foundFailure) {
+                odpowiedźAI = `Znaleziono w bazie awarii (${foundFailure.machine}): ${foundFailure.symptoms} -> Rozwiązanie: ${foundFailure.solution}`;
+            }
+
+            // Dodaj odpowiedź AI
+            setTimeout(() => {
+                container.innerHTML += `<div class="chat-msg ai">${odpowiedźAI}</div>`;
+                container.scrollTop = container.scrollHeight;
+            }, 400);
+
+            container.scrollTop = container.scrollHeight;
         }
 
         let resety = parseInt(localStorage.getItem("licznik_resetow_pc")) || 0;
@@ -409,9 +452,7 @@
         const WYMOWKI = [
             "To nie błąd elektryczny, to wyższe harmoniczne zniekształciły pakiety sieciowe.",
             "Sterownik PLC chwilowo zgubił parametry przez spadki napięcia na sieci głównej.",
-            "Układ zrzucił błąd enkodera, trwa czyszczenie rejestrów pamięci podręcznej.",
-            "Algorytm wszedł w nieprzewidziany rezonans z drganiami mechanicznymi hali.",
-            "Wymagane jest pełne odcięcie zasilania na 10 sekund w celu rozładowania pojemności."
+            "Układ zrzucił błąd enkodera, trwa czyszczenie rejestrów pamięci podręcznej."
         ];
         function losujWymowke() {
             const idx = Math.floor(Math.random() * WYMOWKI.length);
@@ -422,307 +463,78 @@
             const u = parseFloat(document.getElementById('voltInput').value);
             const i = parseFloat(document.getElementById('ampInput').value);
             const resDiv = document.getElementById('ohmResult');
-            
             if (u > 0 && i > 0) {
-                const r = u / i;
-                const p = u * i;
-                resDiv.innerHTML = `Wyniki:<br>➔ Rezystancja R = ${r.toFixed(2)} Ω<br>➔ Moc P = ${p.toFixed(2)} W`;
+                resDiv.innerHTML = `➔ R = ${(u/i).toFixed(2)} Ω, P = ${(u*i).toFixed(2)} W`;
             } else {
                 resDiv.innerHTML = "Wpisz poprawne wartości!";
             }
         }
 
         const bazaKabli = {
-            "1.5": { f1: 16.0, f3: 14.5 },
-            "2.5": { f1: 22.0, f3: 19.5 },
-            "4":   { f1: 30.0, f3: 26.0 },
-            "6":   { f1: 38.0, f3: 34.0 },
-            "10":  { f1: 53.0, f3: 46.0 },
-            "16":  { f1: 71.0, f3: 62.0 },
-            "25":  { f1: 94.0, f3: 82.0 },
-            "35":  { f1: 114.0, f3: 100.0 }
+            "1.5": { f1: 16.0, f3: 14.5 }, "2.5": { f1: 22.0, f3: 19.5 }, "4": { f1: 30.0, f3: 26.0 }, "6": { f1: 38.0, f3: 34.0 }
         };
-
         function obliczKabel() {
             const przekroj = document.getElementById("cableSelect").value;
             const fazy = document.getElementById("phaseSelect").value;
-            const resDiv = document.getElementById("cableResult");
-
-            const dane = bazaKabli[przekroj];
-            const maxPrad = (fazy === "1") ? dane.f1 : dane.f3;
-
-            resDiv.innerHTML = `Dopuszczalny prąd długotrwały (Iz):<br><span style="color:#ff7b72; font-size:1.3rem;">${maxPrad.toFixed(1)} A</span>`;
+            const maxPrad = (fazy === "1") ? bazaKabli[przekroj]?.f1 : bazaKabli[przekroj]?.f3;
+            document.getElementById("cableResult").innerHTML = `Max prąd: ${maxPrad} A`;
         }
 
         function obliczPrad3D() {
             const moc = parseFloat(document.getElementById("printPower").value);
-            const godziny = parseFloat(document.getElementById("printHours").value);
-            const cena = parseFloat(document.getElementById("powerPrice").value);
-            const resDiv = document.getElementById("printCostResult");
-
-            if (moc > 0 && godziny > 0 && cena >= 0) {
-                const kwh = (moc * godziny) / 1000;
-                const koszt = kwh * cena;
-                resDiv.innerHTML = `Zużycie: <span style="color:#3fb950;">${kwh.toFixed(3)} kWh</span><br>Koszt prądu: <span style="color:#ff7b72; font-size:1.2rem;">${koszt.toFixed(2)} zł</span>`;
-            } else {
-                resDiv.innerHTML = "Wprowadź prawidłowe liczby!";
-            }
+            const g = parseFloat(document.getElementById("printHours").value);
+            const c = parseFloat(document.getElementById("powerPrice").value);
+            document.getElementById("printCostResult").innerHTML = `Koszt: ${(((moc*g)/1000)*c).toFixed(2)} zł`;
         }
 
         let tasks = JSON.parse(localStorage.getItem("ur_tasks")) || [];
-        
         function renderTasks() {
             const list = document.getElementById("taskList");
             list.innerHTML = "";
-            tasks.forEach((task, index) => {
-                const li = document.createElement("li");
-                li.className = `task-item ${task.done ? 'task-done' : ''}`;
-                li.innerHTML = `
-                    <span>${task.text}</span>
-                    <div style="display: flex; gap: 5px;">
-                        <button class="btn" style="padding:4px 8px; font-size:0.75rem; background:${task.done ? '#30363d' : '#238636'}" onclick="toggleTask(${index})">
-                            ${task.done ? 'Przywróć' : 'Gotowe'}
-                        </button>
-                    </div>
-                `;
-                list.appendChild(li);
+            tasks.forEach((t, i) => {
+                list.innerHTML += `<li class="task-item ${t.done?'task-done':''}"><span>${t.text}</span><button class="btn" style="padding:4px;" onclick="toggleTask(${i})">OK</button></li>`;
             });
         }
-
         function addTask() {
             const input = document.getElementById("taskInput");
-            const taskText = input.value.trim();
-
-            if (taskText !== "") {
-                const taskId = "task_" + Date.now();
-
-                tasks.push({ id: taskId, text: taskText, done: false });
+            if(input.value.trim()) {
+                tasks.push({id: "t_"+Date.now(), text: input.value.trim(), done: false});
                 input.value = "";
                 localStorage.setItem("ur_tasks", JSON.stringify(tasks));
                 renderTasks();
-
-                const urlStrony = window.location.href.split('?')[0];
-                const linkDoUsuniecia = `${urlStrony}?delete=${taskId}`;
-
-                const trescWiadomosci = `🚨 *KRYTYCZNA AWARIA (UR)*:\n\n${taskText}`;
-                const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-
-                fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        chat_id: TELEGRAM_CHAT_ID,
-                        text: trescWiadomosci,
-                        parse_mode: "Markdown",
-                        reply_markup: {
-                            inline_keyboard: [[
-                                { text: "❌ USUŃ WPIS ZE STRONY", url: linkDoUsuniecia }
-                            ]]
-                        }
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) console.error("Błąd wysyłki Telegram");
-                })
-                .catch(err => console.error("Błąd sieci bota:", err));
             }
         }
-
-        function toggleTask(index) {
-            tasks[index].done = !tasks[index].done;
+        function toggleTask(i) {
+            tasks[i].done = !tasks[i].done;
             localStorage.setItem("ur_tasks", JSON.stringify(tasks));
             renderTasks();
         }
         renderTasks();
 
-        function sprawdzZadanieUsuniecia() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const idDoUsuniecia = urlParams.get('delete');
-
-            if (idDoUsuniecia) {
-                let lokalneZadania = JSON.parse(localStorage.getItem("ur_tasks")) || [];
-                lokalneZadania = lokalneZadania.filter(t => t.id !== idDoUsuniecia);
-                localStorage.setItem("ur_tasks", JSON.stringify(lokalneZadania));
-                
-                document.body.innerHTML = `
-                    <div style="background:#0d1117; color:#3fb950; text-align:center; padding:50px; font-family:sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h2>✅ Wpis został pomyślnie usunięty z terminarza!</h2>
-                        <p style="color:#8b949e; margin-top: 10px;">Możesz już bezpiecznie zamknąć to okno.</p>
-                    </div>
-                `;
-                
-                setTimeout(() => { window.close(); }, 1500);
-            }
-        }
-        window.addEventListener("DOMContentLoaded", sprawdzZadanieUsuniecia);
-
         async function wczytajAwarieZGitHub() {
-            const tbody = document.getElementById("failureList");
             try {
-                const odpowiedz = await fetch(URL_AWARII);
-                if (!odpowiedz.ok) throw new Error('Błąd pobierania bazy awarii');
-                
-                const surowyTekst = await odpowiedz.text();
-                const linie = surowyTekst.split('\n');
-                failures = [];
-
-                for (let i = 1; i < linie.length; i++) {
-                    const linia = linie[i].trim();
-                    if (linia === "") continue;
-
-                    const kolumny = linia.split('\t');
-                    if (kolumny.length >= 3) {
-                        failures.push({
-                            machine: kolumny[0].trim(),
-                            symptoms: kolumny[1].trim(),
-                            solution: kolumny[2].trim()
-                        });
-                    }
-                }
-                localStorage.setItem("baza_awarii", JSON.stringify(failures));
-                renderFailures(failures);
-            } catch (err) {
-                console.error("Błąd ładowania bazy awarii:", err);
-                failures = JSON.parse(localStorage.getItem("baza_awarii")) || [];
-                if (failures.length > 0) {
-                    renderFailures(failures);
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt lub brak pliku na GitHubie.</td></tr>`;
-                }
-            }
+                const res = await fetch(URL_AWARII);
+                const txt = await res.text();
+                failures = txt.split('\n').slice(1).map(l => {
+                    const c = l.split('\t');
+                    return c.length >= 3 ? {machine: c[0].trim(), symptoms: c[1].trim(), solution: c[2].trim()} : null;
+                }).filter(Boolean);
+            } catch(e) {}
         }
-
-        function renderFailures(elementyDoWyswietlenia) {
-            const tbody = document.getElementById("failureList");
-            tbody.innerHTML = "";
-
-            if (elementyDoWyswietlenia.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic; padding:15px;">Brak dopasowanych usterek w bazie.</td></tr>`;
-                return;
-            }
-
-            elementyDoWyswietlenia.forEach(item => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td style="font-weight:bold; color:#f0f6fc;">${item.machine}</td>
-                    <td style="color:#ff7b72;">${item.symptoms}</td>
-                    <td style="color:#3fb950; line-height:1.4;">${item.solution}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function filterFailures() {
-            const query = document.getElementById("searchFailureInput").value.toLowerCase().trim();
-            const przefiltrowane = failures.filter(item => 
-                item.machine.toLowerCase().includes(query) || 
-                item.symptoms.toLowerCase().includes(query) || 
-                item.solution.toLowerCase().includes(query)
-            );
-            renderFailures(przefiltrowane);
-        }
-
         async function wczytajBazeZGitHub() {
-            const tbody = document.getElementById("partList");
             try {
-                const odpowiedz = await fetch(URL_BAZY); 
-                if (!odpowiedz.ok) throw new Error('Błąd pliku z danymi');
-                
-                const surowyTekst = await odpowiedz.text();
-                const linie = surowyTekst.split('\n');
-                parts = [];
-
-                for (let i = 1; i < linie.length; i++) {
-                    const linia = linie[i].trim();
-                    if (linia === "") continue;
-
-                    const kolumny = linia.split('\t');
-                    if (kolumny.length >= 3) {
-                        const lokalizacja = kolumny[0].trim();
-                        const nazwaTowaru = kolumny[1].trim();
-                        const iloscSztuk = kolumny[2].trim();
-
-                        parts.push({
-                            name: `[${lokalizacja}] ${nazwaTowaru}`,
-                            qty: iloscSztuk
-                        });
-                    }
-                }
-                localStorage.setItem("magazynek_parts", JSON.stringify(parts));
-                renderParts(parts);
-            } catch (err) {
-                console.error("Błąd ładowania bazy tekstowej:", err);
-                parts = JSON.parse(localStorage.getItem("magazynek_parts")) || [];
-                if(parts.length > 0) {
-                    renderParts(parts);
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd konwersji pliku baza.txt lub brak połączenia.</td></tr>`;
-                }
-            }
-        }
-
-        function renderParts(elementyDoWyswietlenia) {
-            const tbody = document.getElementById("partList");
-            tbody.innerHTML = "";
-
-            if (elementyDoWyswietlenia.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; font-style:italic; padding:15px;">Brak pasujących elementów w bazie.</td></tr>`;
-                return;
-            }
-
-            elementyDoWyswietlenia.forEach(part => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td element-name>${part.name}</td>
-                    <td style="text-align:center; font-weight:bold; color:#58a6ff;">${part.qty} szt.</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function filterParts() {
-            const query = document.getElementById("searchInput").value.toLowerCase().trim();
-            const przefiltrowane = parts.filter(item => item.name.toLowerCase().includes(query));
-            renderParts(przefiltrowane);
-        }
-
-        async function fetchMarketData() {
-            try {
-                const cryptoRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,monero,ethereum&vs_currencies=eur");
-                const cryptoData = await cryptoRes.json();
-                if(cryptoData.bitcoin && cryptoData.monero && cryptoData.ethereum) {
-                    document.getElementById("btc-price").innerText = `€${cryptoData.bitcoin.eur}`;
-                    document.getElementById("xmr-price").innerText = `€${cryptoData.monero.eur}`;
-                    document.getElementById("eth-price").innerText = `€${cryptoData.ethereum.eur}`;
-                }
-
-                const forexRes = await fetch("https://open.er-api.com/v6/latest/EUR");
-                const forexData = await forexRes.json();
-                if(forexData && forexData.rates) {
-                    if (forexData.rates.PLN) {
-                        document.getElementById("eur-price").innerText = `${forexData.rates.PLN.toFixed(2)} zł`;
-                    }
-                }
-
-                const usdRes = await fetch("https://open.er-api.com/v6/latest/USD");
-                const usdData = await usdRes.json();
-                if(usdData && usdData.rates && usdData.rates.PLN) {
-                    document.getElementById("usd-price").innerText = `${usdData.rates.PLN.toFixed(2)} zł`;
-                }
-            } catch (err) {
-                document.getElementById("btc-price").innerText = "Błąd";
-                document.getElementById("xmr-price").innerText = "Błąd";
-                document.getElementById("eth-price").innerText = "Błąd";
-                document.getElementById("eur-price").innerText = "Błąd";
-                document.getElementById("usd-price").innerText = "Błąd";
-            }
+                const res = await fetch(URL_BAZY);
+                const txt = await res.text();
+                parts = txt.split('\n').slice(1).map(l => {
+                    const c = l.split('\t');
+                    return c.length >= 3 ? {name: `[${c[0].trim()}] ${c[1].trim()}`, qty: c[2].trim()} : null;
+                }).filter(Boolean);
+            } catch(e) {}
         }
 
         window.onload = function() {
-            fetchMarketData();
             wczytajBazeZGitHub();
             wczytajAwarieZGitHub();
-            setInterval(fetchMarketData, 60000);
         };
     </script>
 </body>
