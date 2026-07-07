@@ -105,6 +105,7 @@
             <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
             <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
             <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
+            <button class="menu-btn" onclick="switchTab('ai-asystent')">🧠 AI Asystent</button>
             <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 5px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
         </div>
 
@@ -129,6 +130,11 @@
 
     <div class="main-content">
 
+        <div id="login-screen" class="card" style="display:none; text-align:center;">
+    <h3>🔒 Autoryzacja</h3>
+    <input type="password" id="passInput" class="input-dark" placeholder="Hasło...">
+    <button class="btn-action" onclick="checkPassword()">Wejdź</button>
+</div>
         <div id="dom" class="tab-content active">
             <h1>Pulpit Sterowniczy</h1>
             <div class="grid-2">
@@ -305,6 +311,14 @@
         </div>
 
         <!-- Nowa Podstrona: Moje Linki -->
+        <div id="ai-asystent" class="tab-content">
+    <h1>🧠 AI Asystent</h1>
+    <div class="card">
+        <div id="chat-history" style="height: 250px; overflow-y: auto; background: #0d1117; padding: 10px; border: 1px solid #30363d; margin-bottom: 10px; border-radius: 6px; font-size: 0.9rem;"></div>
+        <input type="text" id="ai-input" class="input-dark" placeholder="Pytaj o bazę...">
+        <button class="btn-action" onclick="wyslijDoAI()">Analizuj</button>
+    </div>
+</div>
         <div id="mojelinki" class="tab-content">
             <h1>🗂️ Sektor Prywatny: Moje Linki</h1>
             <div class="card" style="border-color: #238636;">
@@ -364,6 +378,44 @@
     </div>
 
     <script>
+        let isAuthenticated = false;
+let targetTab = "";
+
+// Zmodyfikuj swoją funkcję switchTab tak, aby zawierała to sprawdzenie:
+function switchTab(tabId) {
+    if ((tabId === 'kierownik' || tabId === 'ai-asystent') && !isAuthenticated) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById('login-screen').style.display = 'block';
+        targetTab = tabId;
+        return;
+    }
+    document.getElementById('login-screen').style.display = 'none';
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+}
+
+function checkPassword() {
+    if (document.getElementById('passInput').value === "marek1901") {
+        isAuthenticated = true;
+        document.getElementById('passInput').value = "";
+        switchTab(targetTab);
+    } else { alert("Błędne hasło!"); }
+}
+
+async function wyslijDoAI() {
+    const input = document.getElementById("ai-input");
+    const chat = document.getElementById("chat-history");
+    chat.innerHTML += `<p><strong>Ty:</strong> ${input.value}</p>`;
+    // Twoje pobieranie danych (zmienna baza i awarie)
+    try {
+        const [baza, awarie] = await Promise.all([
+            fetch('baza.txt').then(r => r.text()),
+            fetch('awarie.txt').then(r => r.text())
+        ]);
+        chat.innerHTML += `<p style="color: #58a6ff;"><strong>AI:</strong> Dane zaczytane (${baza.length}b / ${awarie.length}b).</p>`;
+    } catch(e) { chat.innerHTML += `<p style="color: #ff7b72;">Błąd bazy.</p>`; }
+    input.value = "";
+}
         const URL_BAZY = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/baza.txt";
         const URL_AWARII = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/awarie.txt";
 
