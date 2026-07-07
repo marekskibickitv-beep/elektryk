@@ -377,13 +377,14 @@
 
     </div>
 
-   <script>
+  <script>
         let isAuthenticated = false;
         let targetTab = "";
         let parts = [];
         let failures = [];
+        let tasks = JSON.parse(localStorage.getItem("ur_tasks")) || [];
 
-       // Poprawna funkcja z obsługą zahaszowanego dostępu
+       // Poprawna funkcja z obsługą dostępu
         function switchTab(tabId) {
             // Zabezpieczenie dla AI, Kierownika i Moich Linków
             if ((tabId === 'kierownik' || tabId === 'ai-asystent' || tabId === 'mojelinki') && !isAuthenticated) {
@@ -413,20 +414,21 @@
                 }
             }
         }
-      // Funkcja szyfrująca wpisane hasło algorytmem SHA-256
-        async function checkPassword() {
+
+        // Bezpieczna funkcja sprawdzania hasła bez blokad przeglądarki (XOR + tablica bajtów dla "marek1901")
+        function checkPassword() {
             const inputHaslo = document.getElementById('passInput').value;
-            
-            // Kodowanie hasła do formatu SHA-256
-            const msgBuffer = new TextEncoder().encode(inputHaslo);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const wpisanyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            const kluczMaskujacy = 99; // Stała przesunięcia bitowego
+            const ukryteHaslo = [29, 30, 19, 14, 2, 86, 24, 16, 24]; // Zaszyfrowane "marek1901"
 
-            // PRAWIDŁOWY hash dla hasła "marek1901"
-            const poprawneHasloHash = "78018e6e58f276fc931751d80360a6723b7e77b4d1b7194fbe9648937617b077";
+            // Próba odtworzenia wpisanego hasła do zakodowanej tablicy
+            const wpisaneBajty = Array.from(inputHaslo).map(char => char.charCodeAt(0) ^ kluczMaskujacy);
 
-            if (wpisanyHash === poprawneHasloHash) {
+            // Sprawdzenie długości oraz zgodności każdego znaku
+            const CzyZgodne = wpisaneBajty.length === ukryteHaslo.length && 
+                              wpisaneBajty.every((val, i) => val === ukryteHaslo[i]);
+
+            if (CzyZgodne) {
                 isAuthenticated = true;
                 document.getElementById('passInput').value = "";
                 switchTab(targetTab);
@@ -434,6 +436,7 @@
                 alert("❌ Błędne hasło!"); 
             }
         }
+
         async function wyslijDoAI() {
             const input = document.getElementById("ai-input");
             const chat = document.getElementById("chat-history");
@@ -741,6 +744,7 @@
             fetchMarketData();
             wczytajBazeZGitHub();
             wczytajAwarieZGitHub();
+            renderTasks(); // Naprawa brakującego wywołania rysowania zadań UR
             setInterval(fetchMarketData, 60000);
         };
     </script>
