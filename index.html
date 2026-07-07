@@ -661,25 +661,7 @@ async function wyslijDoAI() {
                     <td style="color:#3fb950; line-height:1.4;">${item.solution}</td>
                 `;
                 tbody.appendChild(tr);
-            });
-        }
-
-        function filterFailures() {
-            const query = document.getElementById("searchFailureInput").value.toLowerCase().trim();
-            const przefiltrowane = failures.filter(item => 
-                item.machine.toLowerCase().includes(query) || 
-                item.symptoms.toLowerCase().includes(query) || 
-                item.solution.toLowerCase().includes(query)
-            );
-            renderFailures(przefiltrowane);
-        }
-
-        async function wczytajBazeZGitHub() {
-            const tbody = document.getElementById("partList");
-            try {
-                const odpowiedz = await fetch(URL_BAZY); 
-                if (!odpowiedz.ok) throw new Error('Błąd pliku z danymi');
-                
+       
                 const surowyTekst = await odpowiedz.text();
                 const linie = surowyTekst.split('\n');
                 parts = [];
