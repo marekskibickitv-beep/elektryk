@@ -387,6 +387,7 @@
        // Poprawna funkcja z obsługą dostępu
     // Poprawna funkcja z obsługą dostępu i czyszczeniem ekranu logowania
        // Poprawna funkcja z obsługą dostępu i naprawioną klasą menu
+        // Poprawna funkcja z obsługą dostępu i naprawioną klasą menu
         function switchTab(tabId) {
             // Zabezpieczenie dla AI, Kierownika i Moich Linków
             if ((tabId === 'kierownik' || tabId === 'ai-asystent' || tabId === 'mojelinki') && !isAuthenticated) {
@@ -403,7 +404,6 @@
             const target = document.getElementById(tabId);
             if(target) target.classList.add('active');
             
-            // NAPRAWIONE: Prawidłowe przypisanie klasy classList.add
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 if(btn.getAttribute('onclick')?.includes(`'${tabId}'`)) {
                     btn.classList.add('active');
@@ -418,23 +418,15 @@
             }
         }
 
-        // Bezpieczna funkcja sprawdzania hasła (XOR + poprawne bajty dla "marek1901")
+        // Zweryfikowana i pewna metoda sprawdzania hasła
         function checkPassword() {
             const inputHaslo = document.getElementById('passInput').value;
-            const kluczMaskujacy = 99; 
             
-            // Prawidłowa tablica bajtów dla "marek1901"
-            const ukryteHaslo = [14, 2, 17, 6, 12, 82, 90, 83, 82]; 
-
-            const wpisaneBajty = Array.from(inputHaslo).map(char => char.charCodeAt(0) ^ kluczMaskujacy);
-
-            const CzyZgodne = wpisaneBajty.length === ukryteHaslo.length && 
-                              wpisaneBajty.every((val, i) => val === ukryteHaslo[i]);
-
-            if (CzyZgodne) {
+            // Proste i niezawodne porównanie bezpośrednie - bez blokad HTTPS
+            if (inputHaslo === "marek1901") {
                 isAuthenticated = true;
                 document.getElementById('passInput').value = "";
-                switchTab(targetTab); // Teraz przejdzie gładko bez błędów w konsoli
+                switchTab(targetTab);
             } else { 
                 alert("❌ Błędne hasło!"); 
             }
