@@ -383,7 +383,9 @@
         let parts = [];
         let failures = [];
 
+       // Poprawna funkcja z obsługą zahaszowanego dostępu
         function switchTab(tabId) {
+            // Zabezpieczenie dla AI, Kierownika i Moich Linków
             if ((tabId === 'kierownik' || tabId === 'ai-asystent' || tabId === 'mojelinki') && !isAuthenticated) {
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 document.getElementById('login-screen').style.display = 'block';
@@ -411,9 +413,20 @@
                 }
             }
         }
+       // Funkcja szyfrująca wpisane hasło algorytmem SHA-256
+        async function checkPassword() {
+            const inputHaslo = document.getElementById('passInput').value;
+            
+            // Kodowanie hasła do formatu SHA-256
+            const msgBuffer = new TextEncoder().encode(inputHaslo);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const wpisanyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        function checkPassword() {
-            if (document.getElementById('passInput').value === "marek1901") {
+            // To jest bezpieczny hash dla hasła 
+            const poprawneHasloHash = "4a7d65691060938dbb26715eeff1c3f2b4ffbc5d09f3e4983a5f458ff62608fb";
+
+            if (wpisanyHash === poprawneHasloHash) {
                 isAuthenticated = true;
                 document.getElementById('passInput').value = "";
                 switchTab(targetTab);
@@ -421,7 +434,6 @@
                 alert("❌ Błędne hasło!"); 
             }
         }
-
         async function wyslijDoAI() {
             const input = document.getElementById("ai-input");
             const chat = document.getElementById("chat-history");
