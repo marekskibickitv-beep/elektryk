@@ -3,105 +3,727 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Dowodzenia Marka</title>
+    <title>Główny Panel Dowodzenia</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background: #0d1117; color: #c9d1d9; display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { width: 280px; background: #161b22; border-right: 1px solid #30363d; padding: 20px; }
-        .sidebar h2 { color: #fff; margin-bottom: 20px; text-align: center; }
-        .menu-btn { width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; text-align: left; cursor: pointer; margin-bottom: 8px; border-radius: 6px; transition: 0.2s; }
-        .menu-btn:hover { background: #21262d; border-color: #58a6ff; }
-        .menu-btn.active { background: #1f6feb; border-color: #1f6feb; color: white; }
 
-        /* Treść */
-        .main-content { flex: 1; padding: 40px; }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
+        /* Boczny Panel Nawigacyjny (Sidebar) */
+        .sidebar { width: 280px; background: #161b22; border-right: 1px solid #30363d; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .profile-area { text-align: center; margin-bottom: 30px; width: 100%; }
+        
+        /* Styl dla ukrytego kliku w literze A */
+        .secret-trigger { cursor: default; color: inherit; text-decoration: none; }
+        .secret-trigger:hover { color: inherit; }
+
+        .avatar-frame { width: 150px; height: 180px; border: 3px solid #238636; border-radius: 8px; overflow: hidden; margin: 15px auto 15px; box-shadow: 0 0 15px rgba(35,134,54,0.3); }
+        .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-area h2 { font-size: 1.2rem; color: #f0f6fc; margin-bottom: 5px; }
+        .status-online { color: #3fb950; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .status-online::before { content: ''; width: 8px; height: 8px; background: #3fb950; border-radius: 50%; display: inline-block; }
+
+        /* Menu */
+        .menu-nav { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+        .menu-btn { width: 100%; padding: 12px 15px; background: transparent; border: 1px solid transparent; border-radius: 6px; color: #c9d1d9; text-align: left; font-size: 1rem; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+        .menu-btn:hover { background: #21262d; border-color: #30363d; color: #58a6ff; }
+        .menu-btn.active { background: #1f6feb; color: white; border-color: #388bfd; }
+
+        /* Dane kontaktowe na dole sidebaru */
+        .sidebar-footer { margin-top: auto; width: 100%; padding-top: 20px; border-top: 1px solid #30363d; font-size: 0.85rem; color: #8b949e; }
+        .contact-info { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .contact-info span { color: #58a6ff; font-weight: bold; }
+
+        /* Crypto & Forex Widget */
+        .crypto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; font-family: monospace; }
+        .crypto-box { background: #0d1117; padding: 6px 4px; border-radius: 4px; border: 1px solid #30363d; text-align: center; font-size: 0.8rem; }
+
+        /* Główny Kontener Treści */
+        .main-content { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
-        .card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; }
+
+        /* Style dla kart i sekcji */
+        h1 { font-size: 2.2rem; color: #f0f6fc; margin-bottom: 25px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 25px; margin-bottom: 20px; }
+        .card h3 { color: #58a6ff; margin-bottom: 15px; font-size: 1.3rem; }
+        p { line-height: 1.6; color: #8b949e; margin-bottom: 15px; }
+        ul { margin-left: 20px; color: #8b949e; line-height: 1.8; }
+        
+        /* Licznik i Inputy */
+        .counter-val { font-size: 3rem; font-weight: bold; color: #ff7b72; font-family: monospace; margin: 10px 0; }
+        .excuse-box { min-height: 60px; background: #0d1117; border: 1px dashed #8b949e; border-radius: 6px; padding: 15px; display: flex; align-items: center; justify-content: center; font-style: italic; color: #58a6ff; margin-bottom: 15px; text-align: center; }
         
         .input-dark { padding: 10px; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 6px; width: 100%; margin-bottom: 10px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .select-dark { padding: 10px; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 6px; width: 100%; margin-bottom: 10px; }
+        .btn { padding: 10px 20px; font-size: 0.95rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
+        .btn-danger { background: #da3637; color: white; }
+        .btn-danger:hover { background: #b62324; }
         .btn-action { background: #238636; color: white; }
+        .btn-action:hover { background: #1f6f39; }
+        .btn-blue { background: #1f6feb; color: white; }
+        .btn-blue:hover { background: #1158c7; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Tabele i Listy */
+        .table-dark { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        .table-dark th, .table-dark td { border: 1px solid #30363d; padding: 10px; text-align: left; vertical-align: top; }
+        .table-dark th { background: #0d1117; color: #58a6ff; }
+        .task-list { list-style: none; margin: 15px 0 0 0; }
+        .task-item { display: flex; justify-content: space-between; align-items: center; background: #0d1117; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #30363d; }
+        .task-done { text-decoration: line-through; color: #8b949e; opacity: 0.6; }
+
+        /* Styl dla prywatnych linków */
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 15px; }
+        .secret-link-card { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 12px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: #c9d1d9; transition: border-color 0.2s, background 0.2s; }
+        .secret-link-card:hover { border-color: #238636; background: #161b22; color: #58a6ff; }
+        .link-icon { font-size: 1.4rem; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2>Marek Panel</h2>
-        <button class="menu-btn active" onclick="switchTab('dom')">🏠 Dom</button>
-        <button class="menu-btn" onclick="switchTab('mojelinki')">🔗 Moje Linki</button>
-        <button class="menu-btn" onclick="switchTab('ai-asystent')">🤖 AI Asystent</button>
-        <button class="menu-btn" onclick="switchTab('kierownik')" style="border-color: #ff7b72; color: #ff7b72;">⚠️ Sektor Zastrzeżony</button>
+        <div class="profile-area">
+            <!-- Nagłówek z ukrytym linkiem w literze A prowadzącym do "mojelinki" -->
+            <h2>M<a href="#" class="secret-trigger" onclick="switchTab('mojelinki'); return false;">a</a>rek</h2>
+            
+            <div class="avatar-frame">
+                <img src="foto.jpg" alt="Marek">
+            </div>
+            <div class="status-online">Elektronik Aktywny</div>
+        </div>
+
+        <div class="menu-nav">
+            <button class="menu-btn active" onclick="switchTab('dom')">🏠 Dom (Pulpit)</button>
+            <button class="menu-btn" onclick="switchTab('omnie')">👤 O mnie</button>
+            <button class="menu-btn" onclick="switchTab('praca')">⚠️ PILNE ZGŁOSZENIE (UR)</button>
+            <button class="menu-btn" onclick="switchTab('awarie')">🚨 Awarie maszyn</button>
+            <button class="menu-btn" onclick="switchTab('elektronika')">⚡ Elektronika</button>
+            <button class="menu-btn" onclick="switchTab('magazynek')">📦 Magazynek</button>
+            <button class="menu-btn" onclick="switchTab('popracy')">⚙️ Po pracy / 3D</button>
+            <button class="menu-btn" onclick="switchTab('kierownik')" style="border-top: 1px dashed #da3637; color: #ff7b72; margin-top: 5px; font-weight: bold;">⚠️ SEKTOR ZASTRZEŻONY 🔒</button>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="contact-info">
+                <div>✉️ Mail: <span>sq4njx@o2.pl</span></div>
+                <div>📞 Tel: <span>603534917</span></div>
+            </div>
+            <div style="font-size: 0.8rem; border-top: 1px solid #30363d; padding-top: 10px;">
+                <p style="margin-bottom: 5px; font-weight: bold; color: #f0f6fc;">Kursy (Live):</p>
+                <div class="crypto-grid">
+                    <div class="crypto-box">BTC: <span id="btc-price" style="color:#58a6ff;">...</span></div>
+                    <div class="crypto-box">XMR: <span id="xmr-price" style="color:#58a6ff;">...</span></div>
+                    <div class="crypto-box">ETH: <span id="eth-price" style="color:#58a6ff;">...</span></div>
+                    <div class="crypto-box">EUR: <span id="eur-price" style="color:#3fb950;">...</span></div>
+                    <div class="crypto-box" style="grid-column: span 2; width: 100%;">USD: <span id="usd-price" style="color:#3fb950;">...</span></div>
+                </div>
+            </div>
+            <p style="font-size: 0.75rem; margin-top: 15px; text-align: center;">© 2026 Panel Dowodzenia</p>
+        </div>
     </div>
 
     <div class="main-content">
-        <div id="dom" class="tab-content active"><h1>Pulpit Główny</h1><p>System operacyjny w gotowości.</p></div>
-        
-        <div id="mojelinki" class="tab-content">
-            <h1>Moje Linki</h1>
-            <div class="card">Tu znajdują się Twoje prywatne zakładki.</div>
-        </div>
-        
-        <div id="ai-asystent" class="tab-content">
-            <h1>🤖 Asystent AI</h1>
-            <div class="card">
-                <textarea id="aiInput" class="input-dark" rows="3" placeholder="Zadaj techniczne pytanie..."></textarea>
-                <button class="btn btn-action" onclick="pytajAI()">ZAPYTAJ AI</button>
-                <div id="aiResponse" style="margin-top: 20px; color: #58a6ff;"></div>
+
+        <div id="dom" class="tab-content active">
+            <h1>Pulpit Sterowniczy</h1>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Status Węzła Operacyjnego</h3>
+                    <p>Zintegrowane systemy diagnostyczne działają w trybie optymalnym. Brak krytycznych alertów sieciowych.</p>
+                    <ul>
+                        <li>Główny Inżynier: <span style="color:#3fb950; font-weight:bold;">Marek</span></li>
+                        <li>Uprawnienia: <span style="color:#58a6ff">Root / Administrator</span></li>
+                        <li>Środowisko: <span style="color:#ff7b72">MSYS2 / Win-Core</span></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Licznik Awarii Ostatecznych</h3>
+                    <div class="counter-val" id="counter">0</div>
+                    <button class="btn btn-danger" onclick="zwiekszLicznik()">Aplikuj Reset Mechaniczny</button>
+                </div>
             </div>
         </div>
 
-        <div id="kierownik" class="tab-content"><h1>Sektor Zastrzeżony</h1><div class="card">Dane tajne dostępne.</div></div>
-    </div>
-
-    <div id="passwordModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; justify-content:center; align-items:center;">
-        <div style="background:#161b22; padding:30px; border:1px solid #30363d; border-radius:8px; text-align:center;">
-            <h3 style="color:#fff; margin-bottom:15px;">PODAJ HASŁO</h3>
-            <input type="password" id="passInput" class="input-dark">
-            <button class="btn btn-action" onclick="checkPassword()">AUTORYZUJ</button>
+        <div id="omnie" class="tab-content">
+            <h1>O mnie</h1>
+            <div class="card">
+                <h3>Profil Zawodowy</h3>
+                <p>Specjalizuję się w utrzymaniu ruchu, diagnostyce maszyn przemysłowych oraz elektronice. Dbam o bezawaryjną pracę systemów elektrycznych, sterowników logicznych oraz obwodów wykonawczych w trudnych środowiskach produkcyjnych.</p>
+                <p>Moje podejście to metodyczna analiza problemu na podstawie schematów elektrycznych oraz szybkie wdrażanie skutecznych rozwiązań.</p>
+            </div>
         </div>
+
+        <div id="praca" class="tab-content">
+            <h1>Utrzymanie Ruchu & Serwis</h1>
+            <div class="grid-2">
+                <div class="card" style="border-color: #da3637;">
+                    <h3 style="color: #ff7b72;">🚨 KRYTYCZNE ZGŁOSZENIE AWARII</h3>
+                    <p style="color: #f0f6fc; font-weight: bold; margin-bottom: 5px;">Kontakt z Markiem — TYLKO PILNE SPRAWY!</p>
+                    <p style="font-size: 0.85rem; color: #ff7b72; margin-bottom: 15px;">⚠️ System przeznaczony wyłącznie do zgłaszania nagłych awarii i przestojów maszyn. Nie wpisuj tutaj błahych tematów.</p>
+                    
+                    <input type="text" id="taskInput" class="input-dark" placeholder="Wpisz maszynę, szafę lub kod błędu i zgłoś..." style="border-color: #da3637;">
+                    <button class="btn btn-danger" onclick="addTask()" style="width: 100%;">WYŚLIJ ALARM NA TELEGRAM</button>
+                    <ul id="taskList" class="task-list"></ul>
+                </div>
+                <div class="card">
+                    <h3>Diagnostyka i Wyjaśnienia Awarii</h3>
+                    <div class="excuse-box" id="excuseDisplay">Generuj oficjalny komunikat dla kierownictwa...</div>
+                    <button class="btn btn-action" onclick="losujWymowke()">Generuj Raport</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="awarie" class="tab-content">
+            <h1>Baza Wiedzy: Awarie i Rozwiązania</h1>
+            <div class="card">
+                <h3>Ewidencja Usterek Przemysłowych</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 15px;">Pełna bazy danych pobierana z pliku <strong>awarie.txt</strong> na GitHubie. Szybkie przeszukiwanie procedur:</p>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="searchFailureInput" class="input-dark" placeholder="Wyszukaj maszynę, sterownik, objaw lub kod błędu..." oninput="filterFailures()" style="margin-bottom:0;">
+                    <button class="btn btn-action" onclick="wczytajAwarieZGitHub()" style="white-space: nowrap;">🔄 Odśwież Bazę</button>
+                </div>
+
+                <table class="table-dark">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">Maszyna / Urządzenie</th>
+                            <th style="width: 300px;">Objawy / Usterka</th>
+                            <th>Rozwiązanie / Co sprawdzić</th>
+                        </tr>
+                    </thead>
+                    <tbody id="failureList">
+                        <tr>
+                            <td colspan="3" style="text-align:center; padding: 20px; color: #8b949e;">Oczekiwanie na pobranie bazy awarii...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="elektronika" class="tab-content">
+            <h1>Warsztat Elektroniczny & Obliczenia</h1>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Kalkulator Obciążalności Kabli (Cu)</h3>
+                    <p style="font-size:0.85rem; margin-bottom:10px;">Wybierz przekrój żyły i typ instalacji (Standardowy montaż B1/C):</p>
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Przekrój przewodu:</label>
+                    <select id="cableSelect" class="select-dark">
+                        <option value="1.5">1.5 mm²</option>
+                        <option value="2.5">2.5 mm²</option>
+                        <option value="4">4.0 mm²</option>
+                        <option value="6">6.0 mm²</option>
+                        <option value="10">10.0 mm²</option>
+                        <option value="16">16.0 mm²</option>
+                        <option value="25">25.0 mm²</option>
+                        <option value="35">35.0 mm²</option>
+                    </select>
+
+                    <label style="font-size:0.8rem; color:#8b949e;">Zasilanie:</label>
+                    <select id="phaseSelect" class="select-dark">
+                        <option value="1">1 Faza (2 żyły obciążone)</option>
+                        <option value="3">3 Fazy (3 żyły obciążone)</option>
+                    </select>
+
+                    <button class="btn btn-blue" onclick="obliczKabel()">Sprawdź obciążalność</button>
+                    <div id="cableResult" style="margin-top: 15px; font-weight: bold; color: #58a6ff; font-size:1.05rem;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Kalkulator Prawa Ohma</h3>
+                    <input type="number" id="voltInput" class="input-dark" placeholder="Napięcie U (V)">
+                    <input type="number" id="ampInput" class="input-dark" placeholder="Prąd I (A)">
+                    <button class="btn btn-action" onclick="obliczOhm()">Oblicz R oraz P</button>
+                    <div id="ohmResult" style="margin-top: 15px; font-weight: bold; color: #3fb950;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="magazynek" class="tab-content">
+            <h1>Magazynek Części (Baza GitHub)</h1>
+            <div class="card">
+                <h3>Rzeczywisty Stan Podzespołów</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 15px;">Dane synchronizowane automatycznie na bazie pliku <strong>baza.txt</strong>. Wyszukaj element:</p>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="searchInput" class="input-dark" placeholder="Filtruj części (np. tranzystor, kondensator, rezystor)..." oninput="filterParts()" style="margin-bottom:0;">
+                    <button class="btn btn-action" onclick="wczytajBazeZGitHub()" style="white-space: nowrap;">🔄 Odśwież</button>
+                </div>
+
+                <table class="table-dark">
+                    <thead>
+                        <tr>
+                            <th>Nazwa elementu</th>
+                            <th style="width: 150px; text-align: center;">Ilość w magazynie</th>
+                        </tr>
+                    </thead>
+                    <tbody id="partList">
+                        <tr>
+                            <td colspan="2" style="text-align:center; padding: 20px; color: #8b949e;">Oczekiwanie na pobranie bazy...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="popracy" class="tab-content">
+            <h1>Projekty 3D & Majsterkowanie</h1>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Kalkulator Energii i Kosztów Druku 3D</h3>
+                    <p style="font-size: 0.85rem; margin-bottom: 10px;">Oszacuj pobór prądu i koszt energii wydruku (uwzględnia średni cykl pracy grzałek):</p>
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Średni pobór mocy drukarki podczas pracy (W):</label>
+                    <input type="number" id="printPower" class="input-dark" value="120" placeholder="np. 120">
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Czas trwania wydruku (godziny):</label>
+                    <input type="number" id="printHours" class="input-dark" value="5" placeholder="np. 5">
+                    
+                    <label style="font-size:0.8rem; color:#8b949e;">Cena za 1 kWh energii (zł):</label>
+                    <input type="number" id="powerPrice" class="input-dark" value="1.00" step="0.01" placeholder="np. 1.00">
+                    
+                    <button class="btn btn-blue" onclick="obliczPrad3D()">Przelicz Koszt energii</button>
+                    <div id="printCostResult" style="margin-top: 15px; font-weight: bold; color: #58a6ff; line-height: 1.5;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Ewidencja Projektowa (OpenSCAD / Druk 3D)</h3>
+                    <p>Tworzenie funkcjonalnych elementów mechanicznych, obudów i komponentów zastępczych do warsztatu.</p>
+                    <ul>
+                        <li>Projektowanie parametryczne części w OpenSCAD</li>
+                        <li>Optymalizacja wydruków technicznych pod kątem wytrzymałości mechanicznej</li>
+                        <li>Własne oprzyrządowanie stanowiska roboczego</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nowa Podstrona: Moje Linki -->
+        <div id="mojelinki" class="tab-content">
+            <h1>🗂️ Sektor Prywatny: Moje Linki</h1>
+            <div class="card" style="border-color: #238636;">
+                <h3 style="color: #3fb950;">🔗 Szybka Nawigacja Sieciowa</h3>
+                <p>Spersonalizowany zestaw odnośników do kluczowych systemów operacyjnych i baz zewnętrznych.</p>
+                
+                <div class="link-grid">
+                    <a href="https://github.com" target="_blank" class="secret-link-card">
+                        <span class="link-icon">🐙</span>
+                        <div>
+                            <div style="font-weight:bold;">GitHub</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Repozytoria kodu i baz</div>
+                        </div>
+                    </a>
+                    <a href="https://kraken.com" target="_blank" class="secret-link-card">
+                        <span class="link-icon">🪙</span>
+                        <div>
+                            <div style="font-weight:bold;">Kraken</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Giełda kryptowalut</div>
+                        </div>
+                    </a>
+                    <a href="https://t.me" target="_blank" class="secret-link-card">
+                        <span class="link-icon">✈️</span>
+                        <div>
+                            <div style="font-weight:bold;">Telegram Web</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Komunikator sieciowy</div>
+                        </div>
+                    </a>
+                    <a href="#" class="secret-link-card" onclick="alert('Miejsce na Twój własny link operacyjny!'); return false;">
+                        <span class="link-icon">⚙️</span>
+                        <div>
+                            <div style="font-weight:bold;">Dodaj własny...</div>
+                            <div style="font-size:0.75rem; color:#8b949e;">Edytuj kod HTML by wkleić URL</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sektor Zastrzeżony (stary kierownik) -->
+        <div id="kierownik" class="tab-content">
+            <h1>Sektor Zastrzeżony: Protokół Nadzoru</h1>
+            <div class="card" style="border-color: #da3637;">
+                <h3 style="color: #ff7b72;">🔒 STREFA WYSOKIEGO RYZYKA</h3>
+                <p style="color: #fff; font-weight: bold;">Autoryzacja pomyślna. Uzyskano wgląd w rejestry operacyjne kadry zarządczej.</p>
+                <p style="font-size: 0.85rem; color: #da3637; font-family: monospace; margin-bottom: 20px;">[POUFNE] Każdy dostęp do tego węzła jest logowany w rejestrze bezpieczeństwa.</p>
+                
+                <ul style="margin-bottom: 15px; list-style-type: '➔ '; margin-left: 15px;">
+                    <li>Wydajność parku maszynowego (OEE): <span style="color:#3fb950; font-weight:bold;">94.2%</span></li>
+                    <li>Średni czas usunięcia usterki (MTTR): <span style="color:#58a6ff;">18 min</span></li>
+                    <li>Status budżetu na części zamienne: <span style="color:#238636;">Zabezpieczony</span></li>
+                    <li>Status krytyczny linii: <span style="color:#3fb950;">Norma zachowana</span></li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        let currentTab = "";
+        const URL_BAZY = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/baza.txt";
+        const URL_AWARII = "https://raw.githubusercontent.com/marekskibickitv-beep/Warsztat/main/awarie.txt";
+
+        const TELEGRAM_TOKEN = "8600738375:AAErYRMS_99VBMXlqMiRkZrVhtno6PWcJow";
+        const TELEGRAM_CHAT_ID = "7456814307"; 
+
+        let parts = [];
+        let failures = [];
 
         function switchTab(tabId) {
+            // Wspólne zabezpieczenie hasłem dla sekcji ukrytych
             if (tabId === 'kierownik' || tabId === 'mojelinki') {
-                currentTab = tabId;
-                document.getElementById('passwordModal').style.display = 'flex';
-                document.getElementById('passInput').focus();
+                const haslo = prompt("WPROWADŹ KOD AUTORYZACYJNY:");
+                if (haslo !== "marek1901") {
+                    alert("❌ ODMIANA DOSTĘPU. Próba naruszenia strefy zastrzeżonej została odnotowana.");
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            
+            const targetTab = document.getElementById(tabId);
+            if(targetTab) targetTab.classList.add('active');
+            
+            // Podświetlenie przycisku w menu tylko jeśli fizycznie w nim istnieje
+            const buttons = document.querySelectorAll('.menu-btn');
+            buttons.forEach(btn => {
+                if(btn.getAttribute('onclick').includes(`'${tabId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        let resety = parseInt(localStorage.getItem("licznik_resetow_pc")) || 0;
+        document.getElementById("counter").innerText = resety;
+        function zwiekszLicznik() {
+            resety++;
+            document.getElementById("counter").innerText = resety;
+            localStorage.setItem("licznik_resetow_pc", resety);
+        }
+
+        const WYMOWKI = [
+            "To nie błąd elektryczny, to wyższe harmoniczne zniekształciły pakiety sieciowe.",
+            "Sterownik PLC chwilowo zgubił parametry przez spadki napięcia na sieci głównej.",
+            "Układ zrzucił błąd enkodera, trwa czyszczenie rejestrów pamięci podręcznej.",
+            "Algorytm wszedł w nieprzewidziany rezonans z drganiami mechanicznymi hali.",
+            "Wymagane jest pełne odcięcie zasilania na 10 sekund w celu rozładowania pojemności."
+        ];
+        function losujWymowke() {
+            const idx = Math.floor(Math.random() * WYMOWKI.length);
+            document.getElementById("excuseDisplay").innerText = WYMOWKI[idx];
+        }
+
+        function obliczOhm() {
+            const u = parseFloat(document.getElementById('voltInput').value);
+            const i = parseFloat(document.getElementById('ampInput').value);
+            const resDiv = document.getElementById('ohmResult');
+            
+            if (u > 0 && i > 0) {
+                const r = u / i;
+                const p = u * i;
+                resDiv.innerHTML = `Wyniki:<br>➔ Rezystancja R = ${r.toFixed(2)} Ω<br>➔ Moc P = ${p.toFixed(2)} W`;
+            } else {
+                resDiv.innerHTML = "Wpisz poprawne wartości!";
+            }
+        }
+
+        const bazaKabli = {
+            "1.5": { f1: 16.0, f3: 14.5 },
+            "2.5": { f1: 22.0, f3: 19.5 },
+            "4":   { f1: 30.0, f3: 26.0 },
+            "6":   { f1: 38.0, f3: 34.0 },
+            "10":  { f1: 53.0, f3: 46.0 },
+            "16":  { f1: 71.0, f3: 62.0 },
+            "25":  { f1: 94.0, f3: 82.0 },
+            "35":  { f1: 114.0, f3: 100.0 }
+        };
+
+        function obliczKabel() {
+            const przekroj = document.getElementById("cableSelect").value;
+            const fazy = document.getElementById("phaseSelect").value;
+            const resDiv = document.getElementById("cableResult");
+
+            const dane = bazaKabli[przekroj];
+            const maxPrad = (fazy === "1") ? dane.f1 : dane.f3;
+
+            resDiv.innerHTML = `Dopuszczalny prąd długotrwały (Iz):<br><span style="color:#ff7b72; font-size:1.3rem;">${maxPrad.toFixed(1)} A</span>`;
+        }
+
+        function obliczPrad3D() {
+            const moc = parseFloat(document.getElementById("printPower").value);
+            const godziny = parseFloat(document.getElementById("printHours").value);
+            const cena = parseFloat(document.getElementById("powerPrice").value);
+            const resDiv = document.getElementById("printCostResult");
+
+            if (moc > 0 && godziny > 0 && cena >= 0) {
+                const kwh = (moc * godziny) / 1000;
+                const koszt = kwh * cena;
+                resDiv.innerHTML = `Zużycie: <span style="color:#3fb950;">${kwh.toFixed(3)} kWh</span><br>Koszt prądu: <span style="color:#ff7b72; font-size:1.2rem;">${koszt.toFixed(2)} zł</span>`;
+            } else {
+                resDiv.innerHTML = "Wprowadź prawidłowe liczby!";
+            }
+        }
+
+        let tasks = JSON.parse(localStorage.getItem("ur_tasks")) || [];
+        
+        function renderTasks() {
+            const list = document.getElementById("taskList");
+            list.innerHTML = "";
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+                li.className = `task-item ${task.done ? 'task-done' : ''}`;
+                li.innerHTML = `
+                    <span>${task.text}</span>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="btn" style="padding:4px 8px; font-size:0.75rem; background:${task.done ? '#30363d' : '#238636'}" onclick="toggleTask(${index})">
+                            ${task.done ? 'Przywróć' : 'Gotowe'}
+                        </button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById("taskInput");
+            const taskText = input.value.trim();
+
+            if (taskText !== "") {
+                const taskId = "task_" + Date.now();
+
+                tasks.push({ id: taskId, text: taskText, done: false });
+                input.value = "";
+                localStorage.setItem("ur_tasks", JSON.stringify(tasks));
+                renderTasks();
+
+                const urlStrony = window.location.href.split('?')[0];
+                const linkDoUsuniecia = `${urlStrony}?delete=${taskId}`;
+
+                const trescWiadomosci = `🚨 *KRYTYCZNA AWARIA (UR)*:\n\n${taskText}`;
+                const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+
+                fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: trescWiadomosci,
+                        parse_mode: "Markdown",
+                        reply_markup: {
+                            inline_keyboard: [[
+                                { text: "❌ USUŃ WPIS ZE STRONY", url: linkDoUsuniecia }
+                            ]]
+                        }
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) console.error("Błąd wysyłki Telegram");
+                })
+                .catch(err => console.error("Błąd sieci bota:", err));
+            }
+        }
+
+        function toggleTask(index) {
+            tasks[index].done = !tasks[index].done;
+            localStorage.setItem("ur_tasks", JSON.stringify(tasks));
+            renderTasks();
+        }
+        renderTasks();
+
+        function sprawdzZadanieUsuniecia() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idDoUsuniecia = urlParams.get('delete');
+
+            if (idDoUsuniecia) {
+                let lokalneZadania = JSON.parse(localStorage.getItem("ur_tasks")) || [];
+                lokalneZadania = lokalneZadania.filter(t => t.id !== idDoUsuniecia);
+                localStorage.setItem("ur_tasks", JSON.stringify(lokalneZadania));
+                
+                document.body.innerHTML = `
+                    <div style="background:#0d1117; color:#3fb950; text-align:center; padding:50px; font-family:sans-serif; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h2>✅ Wpis został pomyślnie usunięty z terminarza!</h2>
+                        <p style="color:#8b949e; margin-top: 10px;">Możesz już bezpiecznie zamknąć to okno.</p>
+                    </div>
+                `;
+                
+                setTimeout(() => { window.close(); }, 1500);
+            }
+        }
+        window.addEventListener("DOMContentLoaded", sprawdzZadanieUsuniecia);
+
+        async function wczytajAwarieZGitHub() {
+            const tbody = document.getElementById("failureList");
+            try {
+                const odpowiedz = await fetch(URL_AWARII);
+                if (!odpowiedz.ok) throw new Error('Błąd pobierania bazy awarii');
+                
+                const surowyTekst = await odpowiedz.text();
+                const linie = surowyTekst.split('\n');
+                failures = [];
+
+                for (let i = 1; i < linie.length; i++) {
+                    const linia = linie[i].trim();
+                    if (linia === "") continue;
+
+                    const kolumny = linia.split('\t');
+                    if (kolumny.length >= 3) {
+                        failures.push({
+                            machine: kolumny[0].trim(),
+                            symptoms: kolumny[1].trim(),
+                            solution: kolumny[2].trim()
+                        });
+                    }
+                }
+                localStorage.setItem("baza_awarii", JSON.stringify(failures));
+                renderFailures(failures);
+            } catch (err) {
+                console.error("Błąd ładowania bazy awarii:", err);
+                failures = JSON.parse(localStorage.getItem("baza_awarii")) || [];
+                if (failures.length > 0) {
+                    renderFailures(failures);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt lub brak pliku na GitHubie.</td></tr>`;
+                }
+            }
+        }
+
+        function renderFailures(elementyDoWyswietlenia) {
+            const tbody = document.getElementById("failureList");
+            tbody.innerHTML = "";
+
+            if (elementyDoWyswietlenia.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic; padding:15px;">Brak dopasowanych usterek w bazie.</td></tr>`;
                 return;
             }
-            showTab(tabId);
+
+            elementyDoWyswietlenia.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="font-weight:bold; color:#f0f6fc;">${item.machine}</td>
+                    <td style="color:#ff7b72;">${item.symptoms}</td>
+                    <td style="color:#3fb950; line-height:1.4;">${item.solution}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        function checkPassword() {
-            const input = document.getElementById('passInput').value;
-            // Hasła: Sektor = kierownik2026, Linki = marek1901
-            if ((currentTab === 'kierownik' && input === 'kierownik2026') || 
-                (currentTab === 'mojelinki' && input === 'marek1901')) {
-                document.getElementById('passwordModal').style.display = 'none';
-                document.getElementById('passInput').value = "";
-                showTab(currentTab);
-            } else { alert("❌ BŁĘDNE HASŁO"); }
+        function filterFailures() {
+            const query = document.getElementById("searchFailureInput").value.toLowerCase().trim();
+            const przefiltrowane = failures.filter(item => 
+                item.machine.toLowerCase().includes(query) || 
+                item.symptoms.toLowerCase().includes(query) || 
+                item.solution.toLowerCase().includes(query)
+            );
+            renderFailures(przefiltrowane);
         }
 
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+        async function wczytajBazeZGitHub() {
+            const tbody = document.getElementById("partList");
+            try {
+                const odpowiedz = await fetch(URL_BAZY); 
+                if (!odpowiedz.ok) throw new Error('Błąd pliku z danymi');
+                
+                const surowyTekst = await odpowiedz.text();
+                const linie = surowyTekst.split('\n');
+                parts = [];
+
+                for (let i = 1; i < linie.length; i++) {
+                    const linia = linie[i].trim();
+                    if (linia === "") continue;
+
+                    const kolumny = linia.split('\t');
+                    if (kolumny.length >= 3) {
+                        const lokalizacja = kolumny[0].trim();
+                        const nazwaTowaru = kolumny[1].trim();
+                        const iloscSztuk = kolumny[2].trim();
+
+                        parts.push({
+                            name: `[${lokalizacja}] ${nazwaTowaru}`,
+                            qty: iloscSztuk
+                        });
+                    }
+                }
+                localStorage.setItem("magazynek_parts", JSON.stringify(parts));
+                renderParts(parts);
+            } catch (err) {
+                console.error("Błąd ładowania bazy tekstowej:", err);
+                parts = JSON.parse(localStorage.getItem("magazynek_parts")) || [];
+                if(parts.length > 0) {
+                    renderParts(parts);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd konwersji pliku baza.txt lub brak połączenia.</td></tr>`;
+                }
+            }
         }
 
-        function pytajAI() {
-            const res = document.getElementById('aiResponse');
-            res.innerText = "Analizuję...";
-            setTimeout(() => { res.innerHTML = "<strong>AI:</strong> System jest w trybie gotowości."; }, 1000);
+        function renderParts(elementyDoWyswietlenia) {
+            const tbody = document.getElementById("partList");
+            tbody.innerHTML = "";
+
+            if (elementyDoWyswietlenia.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; font-style:italic; padding:15px;">Brak pasujących elementów w bazie.</td></tr>`;
+                return;
+            }
+
+            elementyDoWyswietlenia.forEach(part => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td element-name>${part.name}</td>
+                    <td style="text-align:center; font-weight:bold; color:#58a6ff;">${part.qty} szt.</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
+
+        function filterParts() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            const przefiltrowane = parts.filter(item => item.name.toLowerCase().includes(query));
+            renderParts(przefiltrowane);
+        }
+
+        async function fetchMarketData() {
+            try {
+                const cryptoRes = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,monero,ethereum&vs_currencies=eur");
+                const cryptoData = await cryptoRes.json();
+                if(cryptoData.bitcoin && cryptoData.monero && cryptoData.ethereum) {
+                    document.getElementById("btc-price").innerText = `€${cryptoData.bitcoin.eur}`;
+                    document.getElementById("xmr-price").innerText = `€${cryptoData.monero.eur}`;
+                    document.getElementById("eth-price").innerText = `€${cryptoData.ethereum.eur}`;
+                }
+
+                const forexRes = await fetch("https://open.er-api.com/v6/latest/EUR");
+                const forexData = await forexRes.json();
+                if(forexData && forexData.rates) {
+                    if (forexData.rates.PLN) {
+                        document.getElementById("eur-price").innerText = `${forexData.rates.PLN.toFixed(2)} zł`;
+                    }
+                }
+
+                const usdRes = await fetch("https://open.er-api.com/v6/latest/USD");
+                const usdData = await usdRes.json();
+                if(usdData && usdData.rates && usdData.rates.PLN) {
+                    document.getElementById("usd-price").innerText = `${usdData.rates.PLN.toFixed(2)} zł`;
+                }
+            } catch (err) {
+                document.getElementById("btc-price").innerText = "Błąd";
+                document.getElementById("xmr-price").innerText = "Błąd";
+                document.getElementById("eth-price").innerText = "Błąd";
+                document.getElementById("eur-price").innerText = "Błąd";
+                document.getElementById("usd-price").innerText = "Błąd";
+            }
+        }
+
+        window.onload = function() {
+            fetchMarketData();
+            wczytajBazeZGitHub();
+            wczytajAwarieZGitHub();
+            setInterval(fetchMarketData, 60000);
+        };
     </script>
 </body>
 </html>
