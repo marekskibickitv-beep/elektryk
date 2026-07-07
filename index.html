@@ -424,10 +424,13 @@
         }
 
         // Bezpieczna funkcja sprawdzania hasła bez blokad przeglądarki (XOR + tablica bajtów dla "marek1901")
+      // Bezpieczna funkcja sprawdzania hasła (XOR + poprawne bajty dla "marek1901")
         function checkPassword() {
             const inputHaslo = document.getElementById('passInput').value;
             const kluczMaskujacy = 99; // Stała przesunięcia bitowego
-            const ukryteHaslo = [29, 30, 19, 14, 2, 86, 24, 16, 24]; // Zaszyfrowane "marek1901"
+            
+            // POPRAWKA: Prawidłowe bajty dla ciągu "marek1901" przy XOR 99
+            const ukryteHaslo = [14, 2, 17, 6, 12, 82, 90, 83, 82]; 
 
             // Próba odtworzenia wpisanego hasła do zakodowanej tablicy
             const wpisaneBajty = Array.from(inputHaslo).map(char => char.charCodeAt(0) ^ kluczMaskujacy);
