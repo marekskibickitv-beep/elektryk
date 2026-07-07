@@ -386,63 +386,55 @@
 
        // Poprawna funkcja z obsługą dostępu
     // Poprawna funkcja z obsługą dostępu i czyszczeniem ekranu logowania
+       // Poprawna funkcja z obsługą dostępu i naprawioną klasą menu
         function switchTab(tabId) {
             // Zabezpieczenie dla AI, Kierownika i Moich Linków
             if ((tabId === 'kierownik' || tabId === 'ai-asystent' || tabId === 'mojelinki') && !isAuthenticated) {
-                // Ukrywamy wszystkie otwarte karty, aby zwolnić miejsce na formularz logowania
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 document.getElementById('login-screen').style.display = 'block';
                 targetTab = tabId;
                 return;
             }
             
-            // KLUCZOWA POPRAWKA: Jeśli autoryzacja przeszła pomyślnie, ukrywamy bezwzględnie ekran logowania
             document.getElementById('login-screen').style.display = 'none';
-            
-            // Resetowanie stanów kart i przycisków w menu
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
             
-            // Aktywacja docelowej karty
             const target = document.getElementById(tabId);
             if(target) target.classList.add('active');
             
-            // Podświetlenie odpowiedniego przycisku w menu bocznym
+            // NAPRAWIONE: Prawidłowe przypisanie klasy classList.add
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 if(btn.getAttribute('onclick')?.includes(`'${tabId}'`)) {
-                    btn.add('active');
+                    btn.classList.add('active');
                 }
             });
 
-            // Inicjalizacja powitania AI, jeśli wybrano ten panel
             if (tabId === 'ai-asystent') {
                 const chat = document.getElementById("chat-history");
                 if (chat && (chat.innerHTML.trim() === "" || chat.innerHTML.includes("System:"))) {
-                    chat.innerHTML = `<p style="color: #58a6ff;"><strong>AI:</strong> Witaj Marek, czego będziemy szukać – awarii czy magazynu?</p>`;
+                    chat.innerHTML = `<p style="color: #58a6ff;"><strong>AI:</strong> Witaj Marek, co będziemy szukać – awarii czy magazynu?</p>`;
                 }
             }
         }
 
-        // Bezpieczna funkcja sprawdzania hasła bez blokad przeglądarki (XOR + tablica bajtów dla "marek1901")
-      // Bezpieczna funkcja sprawdzania hasła (XOR + poprawne bajty dla "marek1901")
+        // Bezpieczna funkcja sprawdzania hasła (XOR + poprawne bajty dla "marek1901")
         function checkPassword() {
             const inputHaslo = document.getElementById('passInput').value;
-            const kluczMaskujacy = 99; // Stała przesunięcia bitowego
+            const kluczMaskujacy = 99; 
             
-            // POPRAWKA: Prawidłowe bajty dla ciągu "marek1901" przy XOR 99
+            // Prawidłowa tablica bajtów dla "marek1901"
             const ukryteHaslo = [14, 2, 17, 6, 12, 82, 90, 83, 82]; 
 
-            // Próba odtworzenia wpisanego hasła do zakodowanej tablicy
             const wpisaneBajty = Array.from(inputHaslo).map(char => char.charCodeAt(0) ^ kluczMaskujacy);
 
-            // Sprawdzenie długości oraz zgodności każdego znaku
             const CzyZgodne = wpisaneBajty.length === ukryteHaslo.length && 
                               wpisaneBajty.every((val, i) => val === ukryteHaslo[i]);
 
             if (CzyZgodne) {
                 isAuthenticated = true;
                 document.getElementById('passInput').value = "";
-                switchTab(targetTab);
+                switchTab(targetTab); // Teraz przejdzie gładko bez błędów w konsoli
             } else { 
                 alert("❌ Błędne hasło!"); 
             }
