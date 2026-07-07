@@ -377,15 +377,13 @@
 
     </div>
 
-    <script>
+   <script>
         let isAuthenticated = false;
         let targetTab = "";
         let parts = [];
         let failures = [];
 
-        // JEDNA, POPRAWNA FUNKCJA SWITCHTAB DLA CAŁEJ STRONY
         function switchTab(tabId) {
-            // Zabezpieczenie hasłem dla AI, Kierownika i Moich Linków
             if ((tabId === 'kierownik' || tabId === 'ai-asystent' || tabId === 'mojelinki') && !isAuthenticated) {
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 document.getElementById('login-screen').style.display = 'block';
@@ -400,14 +398,12 @@
             const target = document.getElementById(tabId);
             if(target) target.classList.add('active');
             
-            // Podświetlenie aktywnego przycisku w menu
             document.querySelectorAll('.menu-btn').forEach(btn => {
                 if(btn.getAttribute('onclick')?.includes(`'${tabId}'`)) {
                     btn.classList.add('active');
                 }
             });
 
-            // Przywitanie w AI Asystencie zaraz po autoryzacji/wejściu
             if (tabId === 'ai-asystent') {
                 const chat = document.getElementById("chat-history");
                 if (chat && (chat.innerHTML.trim() === "" || chat.innerHTML.includes("System:"))) {
@@ -426,19 +422,16 @@
             }
         }
 
-        // PEŁNE PRZESZUKIWANIE I CZYTANIE BAZ W LOCIE
-       async function wyslijDoAI() {
+        async function wyslijDoAI() {
             const input = document.getElementById("ai-input");
             const chat = document.getElementById("chat-history");
             const zapytanie = input.value.trim().toLowerCase();
             if(!zapytanie) return;
 
-            // Wyświetlenie Twojego pytania w czacie
             chat.innerHTML += `<p><strong>Ty:</strong> ${input.value}</p>`;
             input.value = "";
 
             try {
-                // Pobieranie plików z GitHuba
                 const [surowaBaza, suroweAwarie] = await Promise.all([
                     fetch(URL_BAZY).then(r => r.text()),
                     fetch(URL_AWARII).then(r => r.text())
@@ -447,7 +440,6 @@
                 let wynikiMagazyn = [];
                 let wynikiAwarie = [];
 
-                // Przeszukanie baza.txt
                 const linieBazy = surowaBaza.split('\n');
                 for(let i = 1; i < linieBazy.length; i++) {
                     if(linieBazy[i].toLowerCase().includes(zapytanie)) {
@@ -458,7 +450,6 @@
                     }
                 }
 
-                // Przeszukanie awarie.txt
                 const linieAwarii = suroweAwarie.split('\n');
                 for(let i = 1; i < linieAwarii.length; i++) {
                     if(linieAwarii[i].toLowerCase().includes(zapytanie)) {
@@ -469,7 +460,6 @@
                     }
                 }
 
-                // Składanie odpowiedzi AI
                 let finalnyTekst = "";
                 if(wynikiMagazyn.length > 0) {
                     finalnyTekst += `<p style="color:#58a6ff; font-weight:bold; margin-bottom:5px;">Znaleziono w magazynie:</p>` + wynikiMagazyn.join('<br>') + `<br><br>`;
@@ -487,8 +477,6 @@
             } catch(e) { 
                 chat.innerHTML += `<p style="color: #ff7b72;"><strong>AI:</strong> Błąd odczytu plików z GitHuba.</p>`; 
             }
-            
-            // Autoprzewijanie czatu na dół
             chat.scrollTop = chat.scrollHeight;
         }
 
