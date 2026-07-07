@@ -378,7 +378,6 @@
     </div>
 
     <script>
-      <script>
         let isAuthenticated = false;
         let targetTab = "";
         let parts = [];
@@ -408,7 +407,7 @@
                 }
             });
 
-            // Przywitanie w AI Asystencie zaraz po wejściu
+            // Przywitanie w AI Asystencie zaraz po autoryzacji/wejściu
             if (tabId === 'ai-asystent') {
                 const chat = document.getElementById("chat-history");
                 if (chat && (chat.innerHTML.trim() === "" || chat.innerHTML.includes("System:"))) {
@@ -427,22 +426,62 @@
             }
         }
 
+        // PEŁNE PRZESZUKIWANIE I CZYTANIE BAZ W LOCIE
         async function wyslijDoAI() {
             const input = document.getElementById("ai-input");
             const chat = document.getElementById("chat-history");
-            if(!input.value.trim()) return;
+            const zapytanie = input.value.trim().toLowerCase();
+            if(!zapytanie) return;
 
             chat.innerHTML += `<p><strong>Ty:</strong> ${input.value}</p>`;
+            input.value = "";
+
             try {
-                const [baza, awarie] = await Promise.all([
+                // Pobieranie świeżych baz danych z GitHub
+                const [surowaBaza, suroweAwarie] = await Promise.all([
                     fetch(URL_BAZY).then(r => r.text()),
                     fetch(URL_AWARII).then(r => r.text())
                 ]);
-                chat.innerHTML += `<p style="color: #58a6ff;"><strong>AI:</strong> Zsynchronizowano bazy warsztatowe. Szukam powiązań dla: "${input.value}"...</p>`;
+
+                let odpowiedzi = [];
+
+                // Przeszukiwanie bazy magazynowej (baza.txt)
+                const linieBazy = surowaBaza.split('\n');
+                let znalezioneCzesci = [];
+                for(let i = 1; i < linieBazy.length; i++) {
+                    if(linieBazy[i].toLowerCase().includes(zapytanie)) {
+                        const kol = linieBazy[i].split('\t');
+                        if(kol.length >= 3) znalezioneCzesci.push(`📦 [${kol[0].trim()}] ${kol[1].trim()} - Stan: ${kol[2].trim()} szt.`);
+                    }
+                }
+
+                // Przeszukiwanie bazy awarii (awarie.txt)
+                const linieAwarii = suroweAwarie.split('\n');
+                let znalezioneAwarie = [];
+                for(let i = 1; i < linieAwarii.length; i++) {
+                    if(linieAwarii[i].toLowerCase().includes(zapytanie)) {
+                        const kol = linieAwarii[i].split('\t');
+                        if(kol.length >= 3) znalezioneAwarie.push(`🚨 <strong>${kol[0].trim()}</strong>:<br>• Objawy: ${kol[1].trim()}<br>• Rozwiązanie: ${kol[2].trim()}`);
+                    }
+                }
+
+                // Budowanie odpowiedzi asystenta
+                if(znalezioneCzesci.length > 0) {
+                    odpowiedzi.push(`<span style="color:#58a6ff; font-weight:bold;">Znaleziono w magazynie:</span><br>` + znalezioneCzesci.join('<br>'));
+                }
+                if(znalezioneAwarie.length > 0) {
+                    odpowiedzi.push(`<span style="color:#ff7b72; font-weight:bold;">Znalezione procedury awaryjne:</span><br>` + znalezioneAwarie.join('<br><br>'));
+                }
+
+                if(odpowiedzi.length === 0) {
+                    chat.innerHTML += `<p style="color: #8b949e;"><strong>AI:</strong> Nie znalazłem frazy "${zapytanie}" w plikach baza.txt oraz awarie.txt.</p>`;
+                } else {
+                    chat.innerHTML += `<div style="background: #161b22; padding: 10px; border-radius: 6px; margin-top: 5px; border: 1px solid #30363d;"><p style="color: #3fb950; margin-bottom: 5px;"><strong>AI Asystent:</strong></p>${odpowiedzi.join('<br><hr style="border-color:#30363d; margin:10px 0;"><br>')}</div>`;
+                }
+
             } catch(e) { 
-                chat.innerHTML += `<p style="color: #ff7b72;">Błąd: Brak połączenia z bazami GitHub.</p>`; 
+                chat.innerHTML += `<p style="color: #ff7b72;"><strong>AI:</strong> Błąd krytyczny odczytu baz GitHub.</p>`; 
             }
-            input.value = "";
             chat.scrollTop = chat.scrollHeight;
         }
 
@@ -515,10 +554,9 @@
             }
         }
 
-        let tasks = JSON.parse(localStorage.getItem("ur_tasks")) || [];
-        
         function renderTasks() {
             const list = document.getElementById("taskList");
+            if(!list) return;
             list.innerHTML = "";
             tasks.forEach((task, index) => {
                 const li = document.createElement("li");
@@ -586,7 +624,7 @@
                     const linia = linie[i].trim();
                     if (linia === "") continue;
                     const kolumny = linia.split('\t');
-                    if (kolumcolumns.length >= 3 || kolumny.length >= 3) {
+                    if (kolumny.length >= 3) {
                         failures.push({ machine: kolumny[0].trim(), symptoms: kolumny[1].trim(), solution: kolumny[2].trim() });
                     }
                 }
@@ -595,12 +633,13 @@
             } catch (err) {
                 failures = JSON.parse(localStorage.getItem("baza_awarii")) || [];
                 if (failures.length > 0) renderFailures(failures);
-                else tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt</td></tr>`;
+                else if(tbody) tbody.innerHTML = `<tr><td colspan="3" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd ładowania awarie.txt</td></tr>`;
             }
         }
 
         function renderFailures(elementyDoWyswietlenia) {
             const tbody = document.getElementById("failureList");
+            if(!tbody) return;
             tbody.innerHTML = "";
             if (elementyDoWyswietlenia.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; font-style:italic; padding:15px;">Brak dopasowanych usterek w bazie.</td></tr>`;
@@ -639,12 +678,13 @@
             } catch (err) {
                 parts = JSON.parse(localStorage.getItem("magazynek_parts")) || [];
                 if(parts.length > 0) renderParts(parts);
-                else tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd konwersji pliku baza.txt</td></tr>`;
+                else if(tbody) tbody.innerHTML = `<tr><td colspan="2" style="color:#ff7b72; text-align:center; padding:15px; font-weight:bold;">❌ Błąd konwersji pliku baza.txt</td></tr>`;
             }
         }
 
         function renderParts(elementyDoWyswietlenia) {
             const tbody = document.getElementById("partList");
+            if(!tbody) return;
             tbody.innerHTML = "";
             if (elementyDoWyswietlenia.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; font-style:italic; padding:15px;">Brak pasujących elementów w bazie.</td></tr>`;
@@ -652,7 +692,7 @@
             }
             elementyDoWyswietlenia.forEach(part => {
                 const tr = document.createElement("tr");
-                tr.innerHTML = `<td element-name>|${part.name}</td><td style="text-align:center; font-weight:bold; color:#58a6ff;">${part.qty} szt.</td>`;
+                tr.innerHTML = `<td element-name>${part.name}</td><td style="text-align:center; font-weight:bold; color:#58a6ff;">${part.qty} szt.</td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -694,7 +734,6 @@
             fetchMarketData();
             wczytajBazeZGitHub();
             wczytajAwarieZGitHub();
-            renderTasks();
             setInterval(fetchMarketData, 60000);
         };
     </script>
