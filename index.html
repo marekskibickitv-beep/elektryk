@@ -315,7 +315,7 @@
     <h1>🧠 AI Asystent</h1>
     <div class="card">
         <div id="chat-history" style="height: 250px; overflow-y: auto; background: #0d1117; padding: 10px; border: 1px solid #30363d; margin-bottom: 10px; border-radius: 6px; font-size: 0.9rem;"></div>
-        <input type="text" id="ai-input" class="input-dark" placeholder="Pytaj o bazę...">
+       <input type="text" id="ai-input" class="input-dark" placeholder="Pytaj o bazę..." onkeydown="if(event.key === 'Enter') wyslijDoAI()">
         <button class="btn-action" onclick="wyslijDoAI()">Analizuj</button>
     </div>
 </div>
