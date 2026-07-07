@@ -130,9 +130,9 @@
 
     <div class="main-content">
 
-        <div id="login-screen" class="card" style="display:none; text-align:center;">
+       <div id="login-screen" class="card" style="display:none; text-align:center;">
     <h3>🔒 Autoryzacja</h3>
-    <input type="password" id="passInput" class="input-dark" placeholder="Hasło...">
+    <input type="password" id="passInput" class="input-dark" placeholder="Hasło..." onkeydown="if(event.key === 'Enter') checkPassword()">
     <button class="btn-action" onclick="checkPassword()">Wejdź</button>
 </div>
         <div id="dom" class="tab-content active">
